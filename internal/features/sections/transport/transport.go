@@ -3,6 +3,7 @@ package sections_transport
 import (
 	"context"
 
+	"golang-clean-server/internal/core/domain"
 	core_server "golang-clean-server/internal/core/transport/server"
 	"net/http"
 )
@@ -12,7 +13,7 @@ type SectionsHandler struct {
 }
 
 type SectionsService interface {
-	CreateSections(ctx context.Context) error
+	CreateSections(ctx context.Context) ([]domain.Section, error)
 }
 
 func NewSectionsService(sectionsService SectionsService) *SectionsHandler {

@@ -13,6 +13,8 @@ func (m UserModel) userModelToDomain() domain.User {
 		m.ID,
 		m.Username,
 		"",
+		"",
+		"",
 	)
 }
 
@@ -20,7 +22,12 @@ func userDomainsFromModels(users []UserModel) []domain.User {
 	userDomains := make([]domain.User, len(users))
 
 	for i, u := range users {
-		userDomains[i] = domain.NewUser(u.ID, u.Username, "")
+		userDomains[i] = domain.NewUser(
+			u.ID, u.Username,
+			"",
+			"",
+			"",
+		)
 	}
 
 	return userDomains

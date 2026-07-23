@@ -1,5 +1,5 @@
 package domain
 
 var (
-	UninitId = "empty"
+	UninitId = ""
 )

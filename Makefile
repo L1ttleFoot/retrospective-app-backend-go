@@ -9,6 +9,9 @@ run:
 up:
 	@docker compose up -d --build
 
+up-go:
+	@docker compose up -d --build go-app
+
 down:
 	@docker compose down
 

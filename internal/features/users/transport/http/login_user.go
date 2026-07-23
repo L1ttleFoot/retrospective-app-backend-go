@@ -14,8 +14,9 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
+	ID          string `json:"id"`
+	Username    string `json:"username"`
+	AccessToken string `json:"token"`
 }
 
 func (h *UsersHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +43,19 @@ func (h *UsersHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := LoginUserResponse{ID: userDomain.ID, Username: userDomain.Username}
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refreshToken",
+		Value:    userDomain.RefreshToken,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	response := LoginUserResponse{
+		ID:          userDomain.ID,
+		Username:    userDomain.Username,
+		AccessToken: userDomain.AccessToken,
+	}
 
 	responseHandler.JsonResponse(response, http.StatusOK)
 }

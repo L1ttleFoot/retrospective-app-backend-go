@@ -35,6 +35,8 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 	var statusCode int
 
 	switch {
+	case errors.Is(err, core_errors.ErrUnauthorized):
+		statusCode = http.StatusUnauthorized
 	case errors.Is(err, core_errors.ErrInvalideArgument):
 		statusCode = http.StatusBadRequest
 	case errors.Is(err, core_errors.ErrNotFound):

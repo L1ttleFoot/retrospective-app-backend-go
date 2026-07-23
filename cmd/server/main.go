@@ -6,10 +6,14 @@ import (
 	core_logger "golang-clean-server/internal/core/logger"
 	repository_pool "golang-clean-server/internal/core/repository/pool"
 	core_service_hasher "golang-clean-server/internal/core/service/hasher"
+	core_service_token "golang-clean-server/internal/core/service/tokens"
 	"os"
 
 	core_middleware "golang-clean-server/internal/core/transport/middleware"
 	core_server "golang-clean-server/internal/core/transport/server"
+	boards_repository "golang-clean-server/internal/features/boards/repository"
+	boards_service "golang-clean-server/internal/features/boards/service"
+	boards_transport "golang-clean-server/internal/features/boards/transport"
 	user_repository "golang-clean-server/internal/features/users/repository"
 	user_service "golang-clean-server/internal/features/users/service"
 	users_transport_http "golang-clean-server/internal/features/users/transport/http"
@@ -29,7 +33,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	logger, err := core_logger.NewLogger((core_logger.NewConfigMust()))
+	logger, err := core_logger.NewLogger(core_logger.NewConfigMust())
 
 	if err != nil {
 		fmt.Println("failed to init logger : ", err)
@@ -47,10 +51,15 @@ func main() {
 	defer pool.Close()
 
 	hasher := core_service_hasher.NewHasher(bcrypt.DefaultCost)
+	tokenManager := core_service_token.NewTokenManager(core_service_token.NewConfigMust())
 
 	usersRepository := user_repository.NewUsersRepository(pool)
-	usersService := user_service.NewUsersService(usersRepository, hasher)
-	usersTransport := users_transport_http.NewUsersHandlers(usersService)
+	usersService := user_service.NewUsersService(usersRepository, hasher, tokenManager)
+	usersTransport := users_transport_http.NewUsersHandlers(usersService, tokenManager)
+
+	boardsRepository := boards_repository.NewBoardsRepository(pool)
+	boardsService := boards_service.NewBoardsService(boardsRepository)
+	boardsTransport := boards_transport.NewBoardsTransport(boardsService, tokenManager)
 
 	logger.Debug("init http server")
 	httpServer := core_server.NewServer(
@@ -64,7 +73,7 @@ func main() {
 
 	apiRouter := core_server.NewApiRouter()
 
-	apiRouter.RegisterRoutes(usersTransport.Routes()...)
+	apiRouter.RegisterRoutes(append(usersTransport.Routes(), boardsTransport.Router()...)...)
 
 	httpServer.RegisterApiRouters(apiRouter)
 

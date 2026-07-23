@@ -14,6 +14,10 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 }
 
 func (r *UserRepository) Create(user *models.User) error {
-	query := `INSERT INTO "user" (username) VALUES ($1) RETURNING ID`
+	query := `
+	INSERT INTO "user" (username) 
+	VALUES $1
+	RETURNING id;
+	`
 	return r.db.QueryRow(query, user.Username).Scan(&user.ID)
 }

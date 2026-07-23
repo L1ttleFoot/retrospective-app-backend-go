@@ -15,7 +15,7 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 	query := `
 	INSERT INTO users (username, password)
 	VALUES ($1, $2)
-	RETURNING id
+	RETURNING id;
 	`
 
 	row := r.pool.QueryRow(ctx, query, user.Username, user.Password)
@@ -23,12 +23,14 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 	var userModel UserModel
 
 	if err := row.Scan(&userModel.ID); err != nil {
-		return domain.User{}, fmt.Errorf("scan error : %w", err)
+		return domain.User{}, fmt.Errorf("user scan error : %w", err)
 	}
 
 	userDomain := domain.NewUser(
 		userModel.ID,
 		user.Username,
+		"",
+		"",
 		"",
 	)
 

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"golang-clean-server/internal/core/domain"
+	core_service_tokens "golang-clean-server/internal/core/service/tokens"
+	"time"
 )
 
 type LoginUserDto struct {
@@ -17,15 +19,37 @@ func (s *UsersService) LoginUser(ctx context.Context, user domain.User) (domain.
 		return domain.User{}, fmt.Errorf("validate user domain : %w", err)
 	}
 
-	gettedUser, err := s.usersRepository.GetUserByUsername(ctx, user.Username)
+	domainUser, err := s.usersRepository.GetUserByUsername(ctx, user.Username)
 
 	if err != nil {
 		return domain.User{}, fmt.Errorf("get user : %w", err)
 	}
 
-	if err := s.hasher.Compare(gettedUser.Password, user.Password); err != nil {
+	if err := s.hasher.Compare(domainUser.Password, user.Password); err != nil {
 		return domain.User{}, fmt.Errorf("incorrect user data : %w", err)
 	}
 
-	return gettedUser, nil
+	claims := core_service_tokens.TokenClaims{
+		UserID: domainUser.ID,
+	}
+
+	accessToken, err := s.tokenManager.Generate(claims, core_service_tokens.TypeAccess, 15*time.Minute)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("generate token : %w", err)
+	}
+
+	refreshToken, err := s.tokenManager.Generate(claims, core_service_tokens.TypeRefresh, 15*24*time.Hour)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("generate token : %w", err)
+	}
+
+	domainUser = domain.NewUser(
+		domainUser.ID,
+		domainUser.Username,
+		"",
+		accessToken,
+		refreshToken,
+	)
+
+	return domainUser, nil
 }

@@ -1,0 +1,78 @@
+package core_service_tokens
+
+import (
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type JwtManager struct {
+	accessSecret  []byte
+	refreshSecret []byte
+}
+
+type JwtClaims struct {
+	UserID string `json:"user_id"`
+	jwt.RegisteredClaims
+}
+
+func NewTokenManager(config Config) *JwtManager {
+	return &JwtManager{accessSecret: []byte(config.AccessSecret), refreshSecret: []byte(config.RefreshSecret)}
+}
+
+func (m *JwtManager) Generate(claims TokenClaims, tokenType TokenType, ttl time.Duration) (string, error) {
+
+	jwtClaims := JwtClaims{
+		UserID: claims.UserID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Subject:   string(tokenType),
+		},
+	}
+
+	var secret []byte
+
+	if tokenType == TypeAccess {
+		secret = m.accessSecret
+	} else {
+		secret = m.refreshSecret
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtClaims)
+
+	signedToken, err := token.SignedString(secret)
+	if err != nil {
+		return "", fmt.Errorf("sign token error : %w", err)
+	}
+
+	return signedToken, nil
+}
+
+func (m *JwtManager) Parse(tokenString string, tokenType TokenType) (*TokenClaims, error) {
+
+	var claims JwtClaims
+
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		if tokenType == TypeAccess {
+			return m.accessSecret, nil
+		}
+		return m.refreshSecret, nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token : %w", err)
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	return &TokenClaims{UserID: claims.UserID}, nil
+}

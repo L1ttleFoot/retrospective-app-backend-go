@@ -4,13 +4,13 @@ import (
 	"context"
 	"golang-clean-server/internal/core/domain"
 	core_service_hasher "golang-clean-server/internal/core/service/hasher"
-	core_service_jwt "golang-clean-server/internal/core/service/jwt"
+	core_service_tokens "golang-clean-server/internal/core/service/tokens"
 )
 
 type UsersService struct {
 	usersRepository UsersRepository
 	hasher          core_service_hasher.PasswordHasher
-	jwt             core_service_jwt.Jwt
+	tokenManager    core_service_tokens.TokenManager
 }
 
 type UsersRepository interface {
@@ -22,6 +22,10 @@ type UsersRepository interface {
 	PatchUser(ctx context.Context, id string, patch domain.User) (domain.User, error)
 }
 
-func NewUsersService(usersRepository UsersRepository, hasher core_service_hasher.PasswordHasher) *UsersService {
-	return &UsersService{usersRepository: usersRepository, hasher: hasher}
+func NewUsersService(
+	usersRepository UsersRepository,
+	hasher core_service_hasher.PasswordHasher,
+	tokenManager core_service_tokens.TokenManager,
+) *UsersService {
+	return &UsersService{usersRepository: usersRepository, hasher: hasher, tokenManager: tokenManager}
 }

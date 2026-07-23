@@ -19,7 +19,7 @@ func (r *UsersRepository) PatchUser(ctx context.Context, userId string, user dom
 		WHERE id=$2
 		RETURNING
 			id,
-			username
+			username;
 	`
 
 	row := r.pool.QueryRow(ctx, query, user.Username, userId)
@@ -30,7 +30,13 @@ func (r *UsersRepository) PatchUser(ctx context.Context, userId string, user dom
 		return domain.User{}, fmt.Errorf("scarn error : %w", err)
 	}
 
-	userDomain := domain.NewUser(userModel.ID, userModel.Username, "")
+	userDomain := domain.NewUser(
+		userModel.ID,
+		userModel.Username,
+		"",
+		"",
+		"",
+	)
 
 	return userDomain, nil
 

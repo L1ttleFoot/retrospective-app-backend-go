@@ -6,7 +6,6 @@ import (
 	core_request "golang-clean-server/internal/core/transport/request"
 	core_response "golang-clean-server/internal/core/transport/response"
 	core_types "golang-clean-server/internal/core/transport/types"
-	core_http_utils "golang-clean-server/internal/core/transport/utils"
 	"net/http"
 )
 
@@ -27,7 +26,7 @@ func (h *UsersHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 
 	responseHandler := core_response.NewResponseHandler(log, w)
 
-	userId, err := core_http_utils.GetPathValue(r, "id")
+	userId, err := core_request.GetPathValue(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(err, "invalid id format")
 		return
@@ -55,7 +54,5 @@ func (h *UsersHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func userPatchFromRequest(request ParchUserRequest) domain.UserPatch {
-	return domain.UserPatch{
-		Username: request.Username.ToDomain(),
-	}
+	return domain.NewUserPatch(request.Username.ToDomain())
 }

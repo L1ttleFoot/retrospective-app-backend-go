@@ -3,8 +3,8 @@ package users_transport_http
 import (
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
+	core_request "golang-clean-server/internal/core/transport/request"
 	core_response "golang-clean-server/internal/core/transport/response"
-	core_http_utils "golang-clean-server/internal/core/transport/utils"
 	"net/http"
 )
 
@@ -21,7 +21,7 @@ func (h *UsersHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	responseHandler := core_response.NewResponseHandler(log, w)
 
-	userId, err := core_http_utils.GetPathValue(r, "id")
+	userId, err := core_request.GetPathValue(r, "id")
 	if err != nil {
 		responseHandler.ErrorResponse(err, "invalid id format")
 		return

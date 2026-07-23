@@ -3,12 +3,14 @@ package users_transport_http
 import (
 	"context"
 	"golang-clean-server/internal/core/domain"
+	core_service_tokens "golang-clean-server/internal/core/service/tokens"
 	core_server "golang-clean-server/internal/core/transport/server"
 	"net/http"
 )
 
 type UsersHandler struct {
 	usersService UsersService
+	tokenManager core_service_tokens.TokenManager
 }
 
 type UsersService interface {
@@ -18,10 +20,14 @@ type UsersService interface {
 	PatchUser(ctx context.Context, id string, user domain.UserPatch) (domain.User, error)
 	DeleteUser(ctx context.Context, userId string) error
 	LoginUser(ctx context.Context, user domain.User) (domain.User, error)
+	RefreshTokens(ctx context.Context, refreshToken string) (domain.User, error)
 }
 
-func NewUsersHandlers(usersService UsersService) *UsersHandler {
-	return &UsersHandler{usersService: usersService}
+func NewUsersHandlers(
+	usersService UsersService,
+	tokenManager core_service_tokens.TokenManager,
+) *UsersHandler {
+	return &UsersHandler{usersService: usersService, tokenManager: tokenManager}
 }
 
 func (h *UsersHandler) Routes() []core_server.Route {
@@ -55,6 +61,11 @@ func (h *UsersHandler) Routes() []core_server.Route {
 			Method:  http.MethodPatch,
 			Path:    "/users/{id}",
 			Handler: h.PatchUser,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/auth/refresh",
+			Handler: h.RefreshTokens,
 		},
 	}
 }

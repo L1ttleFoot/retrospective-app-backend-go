@@ -1,13 +1,13 @@
 package core_server
 
-import "net/http"
+import (
+	core_middleware "golang-clean-server/internal/core/transport/middleware"
+	"net/http"
+)
 
 type Route struct {
-	Method  string
-	Path    string
-	Handler http.HandlerFunc
-}
-
-func NewRoute(method string, path string, handler http.HandlerFunc) Route {
-	return Route{Method: method, Path: path, Handler: handler}
+	Method     string
+	Path       string
+	Handler    http.HandlerFunc
+	Middleware []core_middleware.Middleware
 }

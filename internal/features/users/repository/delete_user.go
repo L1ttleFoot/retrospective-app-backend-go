@@ -13,8 +13,8 @@ func (r *UsersRepository) DeleteUser(ctx context.Context, userId string) error {
 	defer cancel()
 
 	query := `
-		DELETE FROM users
-		WHERE id=$1
+	DELETE FROM users
+	WHERE id=$1;
 	`
 
 	cmdTag, err := r.pool.Exec(ctx, query, userId)

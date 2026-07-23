@@ -19,7 +19,7 @@ func (r *UsersRepository) GetUser(ctx context.Context, userId string) (domain.Us
 	query := `
 		SELECT username
 		FROM users
-		WHERE id=$1
+		WHERE id=$1;
 	`
 
 	row := r.pool.QueryRow(ctx, query, userId)
@@ -41,6 +41,8 @@ func (r *UsersRepository) GetUser(ctx context.Context, userId string) (domain.Us
 	userDomain := domain.NewUser(
 		userId,
 		userModel.Username,
+		"",
+		"",
 		"",
 	)
 

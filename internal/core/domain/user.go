@@ -6,13 +6,15 @@ import (
 )
 
 type User struct {
-	ID       string
-	Username string
-	Password string
+	ID           string
+	Username     string
+	Password     string
+	AccessToken  string
+	RefreshToken string
 }
 
-func NewUser(id string, username string, password string) User {
-	return User{ID: id, Username: username, Password: password}
+func NewUser(id string, username string, password string, accessToken string, refreshToken string) User {
+	return User{ID: id, Username: username, Password: password, AccessToken: accessToken, RefreshToken: refreshToken}
 }
 
 func NewUserUninit(username string, password string) User {
@@ -25,6 +27,10 @@ func (u *User) Validate() error {
 
 type UserPatch struct {
 	Username Nullable[string]
+}
+
+func NewUserPatch(username Nullable[string]) UserPatch {
+	return UserPatch{Username: username}
 }
 
 func (p *UserPatch) Validate() error {

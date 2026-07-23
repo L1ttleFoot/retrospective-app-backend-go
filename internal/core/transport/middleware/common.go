@@ -2,14 +2,55 @@ package core_middleware
 
 import (
 	"context"
+	"fmt"
+	core_errors "golang-clean-server/internal/core/errors"
 	core_logger "golang-clean-server/internal/core/logger"
+	core_service_tokens "golang-clean-server/internal/core/service/tokens"
 	core_response "golang-clean-server/internal/core/transport/response"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
+
+func Auth(tm core_service_tokens.TokenManager) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			ctx := r.Context()
+
+			log := core_logger.FromContext(ctx)
+
+			authHeader := r.Header.Get("Authorization")
+
+			responseHandler := core_response.NewResponseHandler(log, w)
+
+			if authHeader == "" {
+				responseHandler.ErrorResponse(core_errors.ErrForbidden, "missing token")
+				return
+			}
+
+			parts := strings.Split(authHeader, " ")
+
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				responseHandler.ErrorResponse(core_errors.ErrForbidden, "invalid token format")
+				return
+			}
+
+			claims, err := tm.Parse(parts[1], core_service_tokens.TypeAccess)
+			if err != nil {
+				responseHandler.ErrorResponse(core_errors.ErrUnauthorized, fmt.Errorf("token validate error : %w", err).Error())
+				return
+			}
+
+			ctx = context.WithValue(r.Context(), "claims", claims)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
 
 func RequestID() Middleware {
 	return func(next http.Handler) http.Handler {

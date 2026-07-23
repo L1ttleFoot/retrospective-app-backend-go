@@ -16,7 +16,7 @@ func (r *UsersRepository) GetUsers(ctx context.Context, limit *int, offset *int)
 		SELECT id, username
 		FROM users
 		LIMIT $1
-		OFFSET $2
+		OFFSET $2;
 	`
 
 	rows, err := r.pool.Query(ctx, query, limit, offset)

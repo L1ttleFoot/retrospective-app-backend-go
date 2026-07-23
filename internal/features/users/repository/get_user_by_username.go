@@ -15,7 +15,7 @@ func (r *UsersRepository) GetUserByUsername(ctx context.Context, username string
 	query := `
 		SELECT id, password
 		FROM users
-		WHERE username=$1
+		WHERE username=$1;
 	`
 
 	row := r.pool.QueryRow(ctx, query, username)
@@ -30,6 +30,8 @@ func (r *UsersRepository) GetUserByUsername(ctx context.Context, username string
 		userModel.ID,
 		username,
 		userModel.Password,
+		"",
+		"",
 	)
 
 	return userDomain, nil

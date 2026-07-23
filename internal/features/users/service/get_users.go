@@ -18,7 +18,6 @@ func (s *UsersService) GetUsers(ctx context.Context, limit *int, offset *int) ([
 	}
 
 	users, err := s.usersRepository.GetUsers(ctx, limit, offset)
-
 	if err != nil {
 		return []domain.User{}, fmt.Errorf("get users : %w", err)
 	}

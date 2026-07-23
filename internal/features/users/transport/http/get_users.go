@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
+	core_request "golang-clean-server/internal/core/transport/request"
 	core_response "golang-clean-server/internal/core/transport/response"
-	core_http_utils "golang-clean-server/internal/core/transport/utils"
 	"net/http"
 )
 
@@ -43,13 +43,18 @@ func (h *UsersHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 
 func gerQueryParams(r *http.Request) (*int, *int, error) {
 
-	limit, err := core_http_utils.GetQueryParams(r, "limit")
+	const (
+		limitKey  = "limit"
+		offsetKey = "offset"
+	)
+
+	limit, err := core_request.GetQueryParams[int](r, limitKey)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'limit' query param : %w", err)
 	}
 
-	offset, err := core_http_utils.GetQueryParams(r, "offset")
+	offset, err := core_request.GetQueryParams[int](r, offsetKey)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'offset' query param : %w", err)
