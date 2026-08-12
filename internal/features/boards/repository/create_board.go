@@ -18,13 +18,16 @@ func (r *BoardsRepository) CreateBoard(ctx context.Context, board domain.Board) 
 	RETURNING id, created_at;
 	`
 
-	row := r.pool.QueryRow(ctx, query, board.Title, board.OwnerId)
+	row := r.pool.QueryRow(ctx, query, board.Title, board.OwnerID)
 
 	if err := row.Scan(&board.ID, &board.CreatedAt); err != nil {
-		return domain.Board{}, fmt.Errorf("board scan error : %w", err)
+		return domain.Board{}, fmt.Errorf("board scan error: %w", err)
 	}
 
-	boardDomain := domain.NewBoard(board.ID, board.Title, board.OwnerId, board.CreatedAt)
+	boardDomain := domain.NewBoard(board.ID, board.Title, board.OwnerID, board.CreatedAt)
+
+	cacheKey := fmt.Sprintf("board:owner:%s", board.OwnerID)
+	_ = r.cache.Delete(ctx, cacheKey)
 
 	return boardDomain, nil
 }

@@ -6,7 +6,7 @@ type Section struct {
 	ID        string
 	Title     string
 	Color     string
-	BoardId   string
+	BoardID   string
 	CreatedAt time.Time
 }
 
@@ -21,7 +21,7 @@ func NewSection(
 		ID:        id,
 		Title:     title,
 		Color:     color,
-		BoardId:   boardId,
+		BoardID:   boardId,
 		CreatedAt: createdAt,
 	}
 }

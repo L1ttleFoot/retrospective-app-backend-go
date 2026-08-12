@@ -23,7 +23,7 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 	var userModel UserModel
 
 	if err := row.Scan(&userModel.ID); err != nil {
-		return domain.User{}, fmt.Errorf("user scan error : %w", err)
+		return domain.User{}, fmt.Errorf("user scan error: %w", err)
 	}
 
 	userDomain := domain.NewUser(

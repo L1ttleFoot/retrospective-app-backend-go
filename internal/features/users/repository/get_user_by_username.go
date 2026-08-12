@@ -23,7 +23,7 @@ func (r *UsersRepository) GetUserByUsername(ctx context.Context, username string
 	var userModel UserModel
 
 	if err := row.Scan(&userModel.ID, &userModel.Password); err != nil {
-		return domain.User{}, fmt.Errorf("scan error : %w", err)
+		return domain.User{}, fmt.Errorf("scan error: %w", err)
 	}
 
 	userDomain := domain.NewUser(

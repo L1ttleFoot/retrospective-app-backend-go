@@ -30,3 +30,9 @@ func (r *ResponseWriter) GetStatusCode() int {
 
 	return r.statusCode
 }
+
+func (rw *ResponseWriter) Flush() {
+	if flusher, ok := rw.ResponseWriter.(http.Flusher); ok {
+		flusher.Flush()
+	}
+}

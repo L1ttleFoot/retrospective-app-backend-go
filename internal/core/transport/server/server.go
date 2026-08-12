@@ -65,7 +65,7 @@ func (s *Server) Run(ctx context.Context) error {
 	select {
 	case err := <-ch:
 		if err != nil {
-			return fmt.Errorf("listen and serve http : %w", err)
+			return fmt.Errorf("listen and serve http: %w", err)
 		}
 	case <-ctx.Done():
 		s.log.Warn("shutdown http server")
@@ -77,7 +77,7 @@ func (s *Server) Run(ctx context.Context) error {
 		if err := server.Shutdown(shutdownCtx); err != nil {
 			_ = server.Close()
 
-			return fmt.Errorf("shutdown HTTP server : %w", err)
+			return fmt.Errorf("shutdown HTTP server: %w", err)
 		}
 
 		s.log.Warn("http server stopped")

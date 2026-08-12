@@ -6,12 +6,14 @@ import (
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
 	core_middleware "golang-clean-server/internal/core/transport/middleware"
 	core_server "golang-clean-server/internal/core/transport/server"
+	"golang-clean-server/internal/features/events"
 	"net/http"
 )
 
 type BoardsHandler struct {
 	boardsService BoardsService
 	tokenManager  core_service_tokens.TokenManager
+	eventBroker   *events.Broker
 }
 
 type BoardsService interface {
@@ -20,11 +22,16 @@ type BoardsService interface {
 	DeleteBoard(ctx context.Context, boardId string) error
 }
 
-func NewBoardsTransport(
+func NewBoardsHandler(
 	boardsService BoardsService,
 	tokenManager core_service_tokens.TokenManager,
+	eventBroker *events.Broker,
 ) *BoardsHandler {
-	return &BoardsHandler{boardsService: boardsService, tokenManager: tokenManager}
+	return &BoardsHandler{
+		boardsService: boardsService,
+		tokenManager:  tokenManager,
+		eventBroker:   eventBroker,
+	}
 }
 
 func (h *BoardsHandler) Router() []core_server.Route {

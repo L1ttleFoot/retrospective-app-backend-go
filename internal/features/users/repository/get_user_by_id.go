@@ -29,13 +29,13 @@ func (r *UsersRepository) GetUser(ctx context.Context, userId string) (domain.Us
 	if err := row.Scan(&userModel.Username); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.User{}, fmt.Errorf(
-				"user with id=%s : %w",
+				"user with id=%s: %w",
 				userId,
 				core_errors.ErrNotFound,
 			)
 		}
 
-		return domain.User{}, fmt.Errorf("scan error : %w", err)
+		return domain.User{}, fmt.Errorf("scan error: %w", err)
 	}
 
 	userDomain := domain.NewUser(

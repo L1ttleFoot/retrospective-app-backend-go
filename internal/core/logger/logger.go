@@ -13,11 +13,15 @@ type Logger struct {
 	*zap.Logger
 }
 
+type ctxKeyLog string
+
+const logKey ctxKeyLog = "log"
+
 func NewLogger(config Config) (*Logger, error) {
 
 	zapLvl := zap.NewAtomicLevel()
 	if err := zapLvl.UnmarshalText([]byte(config.Level)); err != nil {
-		return nil, fmt.Errorf("unmarshal log level : %w", err)
+		return nil, fmt.Errorf("unmarshal log level: %w", err)
 	}
 
 	zapConfig := zap.NewDevelopmentEncoderConfig()
@@ -33,12 +37,17 @@ func NewLogger(config Config) (*Logger, error) {
 }
 
 func FromContext(ctx context.Context) *Logger {
-	log, ok := ctx.Value("log").(*Logger)
+	log, ok := ctx.Value(logKey).(*Logger)
 	if !ok {
 		panic("no logger in context")
 	}
 
 	return log
+}
+
+func ToContext(ctx context.Context, l *Logger) context.Context {
+
+	return context.WithValue(ctx, logKey, l)
 }
 
 func (l *Logger) With(field ...zap.Field) *Logger {

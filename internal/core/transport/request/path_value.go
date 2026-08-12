@@ -14,7 +14,7 @@ func GetPathValue(r *http.Request, key string) (string, error) {
 
 	if pathValue == "" {
 		return "", fmt.Errorf(
-			"no key=%s in path values : %w",
+			"no key=%s in path values: %w",
 			key,
 			core_errors.ErrInvalideArgument,
 		)
@@ -22,7 +22,7 @@ func GetPathValue(r *http.Request, key string) (string, error) {
 
 	if _, err := uuid.Parse(pathValue); err != nil {
 		return "", fmt.Errorf(
-			"path value='%s' by key='%s' is not a valit uuid : %v : %w",
+			"path value='%s' by key='%s' is not a valit uuid: %v: %w",
 			pathValue,
 			key,
 			err,

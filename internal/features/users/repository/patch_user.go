@@ -14,12 +14,9 @@ func (r *UsersRepository) PatchUser(ctx context.Context, userId string, user dom
 
 	query := `
 		UPDATE users 
-		SET
-			username=$1
+		SET username=$1
 		WHERE id=$2
-		RETURNING
-			id,
-			username;
+		RETURNING id, username;
 	`
 
 	row := r.pool.QueryRow(ctx, query, user.Username, userId)
@@ -27,7 +24,7 @@ func (r *UsersRepository) PatchUser(ctx context.Context, userId string, user dom
 	var userModel UserModel
 
 	if err := row.Scan(&userModel.ID, userModel.Username); err != nil {
-		return domain.User{}, fmt.Errorf("scarn error : %w", err)
+		return domain.User{}, fmt.Errorf("scarn error: %w", err)
 	}
 
 	userDomain := domain.NewUser(

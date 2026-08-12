@@ -51,13 +51,13 @@ func gerQueryParams(r *http.Request) (*int, *int, error) {
 	limit, err := core_request.GetQueryParams[int](r, limitKey)
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("get 'limit' query param : %w", err)
+		return nil, nil, fmt.Errorf("get 'limit' query param: %w", err)
 	}
 
 	offset, err := core_request.GetQueryParams[int](r, offsetKey)
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("get 'offset' query param : %w", err)
+		return nil, nil, fmt.Errorf("get 'offset' query param: %w", err)
 
 	}
 

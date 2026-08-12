@@ -23,7 +23,7 @@ type UsersService interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (domain.User, error)
 }
 
-func NewUsersHandlers(
+func NewUsersHandler(
 	usersService UsersService,
 	tokenManager core_service_tokens.TokenManager,
 ) *UsersHandler {

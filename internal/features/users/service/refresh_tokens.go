@@ -12,7 +12,7 @@ func (s *UsersService) RefreshTokens(ctx context.Context, refreshToken string) (
 
 	claims, err := s.tokenManager.Parse(refreshToken, core_service_tokens.TypeRefresh)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("Invalid or expired refresh token : %w", err)
+		return domain.User{}, fmt.Errorf("Invalid or expired refresh token: %w", err)
 	}
 
 	newClaims := core_service_tokens.TokenClaims{UserID: claims.UserID}
@@ -22,12 +22,12 @@ func (s *UsersService) RefreshTokens(ctx context.Context, refreshToken string) (
 	newAccessToken, err := s.tokenManager.Generate(newClaims, core_service_tokens.TypeAccess, 15*time.Minute)
 	if err != nil {
 
-		return domain.User{}, fmt.Errorf("Unable to generate token : %w", err)
+		return domain.User{}, fmt.Errorf("Unable to generate token: %w", err)
 	}
 
 	newRefreshToken, err := s.tokenManager.Generate(newClaims, core_service_tokens.TypeRefresh, 15*24*time.Hour)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("Unable to generate token : %w", err)
+		return domain.User{}, fmt.Errorf("Unable to generate token: %w", err)
 	}
 
 	domainUser = domain.NewUser(

@@ -12,6 +12,9 @@ up:
 up-go:
 	@docker compose up -d --build go-app
 
+up-react:
+	@docker compose up -d --build retro-frontend
+
 down:
 	@docker compose down
 
@@ -42,6 +45,12 @@ migrate-force:
 		-path /migrations \
 		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable \
 		force "${v}"
+
+migrate-version:
+	@docker compose run --rm db-migrate \
+		-path /migrations \
+		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable \
+		version
 
 migrate-up:
 	make migrate-action action=up

@@ -5,7 +5,7 @@ import "time"
 type Board struct {
 	ID        string
 	Title     string
-	OwnerId   string
+	OwnerID   string
 	CreatedAt time.Time
 }
 
@@ -18,7 +18,7 @@ func NewBoard(
 	return Board{
 		ID:        id,
 		Title:     title,
-		OwnerId:   ownerId,
+		OwnerID:   ownerId,
 		CreatedAt: createdAt,
 	}
 }

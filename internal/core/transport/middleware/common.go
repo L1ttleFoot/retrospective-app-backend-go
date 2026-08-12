@@ -41,7 +41,7 @@ func Auth(tm core_service_tokens.TokenManager) Middleware {
 
 			claims, err := tm.Parse(parts[1], core_service_tokens.TypeAccess)
 			if err != nil {
-				responseHandler.ErrorResponse(core_errors.ErrUnauthorized, fmt.Errorf("token validate error : %w", err).Error())
+				responseHandler.ErrorResponse(core_errors.ErrUnauthorized, fmt.Errorf("token validate error: %w", err).Error())
 				return
 			}
 
@@ -80,7 +80,7 @@ func Logger(log *core_logger.Logger) Middleware {
 				zap.String("url", r.URL.String()),
 			)
 
-			ctx := context.WithValue(r.Context(), "log", l)
+			ctx := core_logger.ToContext(r.Context(), l)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

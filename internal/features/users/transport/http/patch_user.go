@@ -42,7 +42,6 @@ func (h *UsersHandler) PatchUser(w http.ResponseWriter, r *http.Request) {
 	userPatch := userPatchFromRequest(request)
 
 	userDomain, err := h.usersService.PatchUser(ctx, userId, userPatch)
-
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed tp patch user")
 		return

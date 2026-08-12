@@ -26,5 +26,4 @@ func (h *BoardsHandler) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseHandler.EmptyResponse(http.StatusNoContent)
-
 }

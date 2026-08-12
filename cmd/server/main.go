@@ -3,20 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	core_init_features "golang-clean-server/internal/core/init_features"
 	core_logger "golang-clean-server/internal/core/logger"
+	repository_cache "golang-clean-server/internal/core/repository/cache"
 	repository_pool "golang-clean-server/internal/core/repository/pool"
 	core_service_hasher "golang-clean-server/internal/core/service/hasher"
 	core_service_token "golang-clean-server/internal/core/service/tokens"
+	"golang-clean-server/internal/features/events"
 	"os"
+	"time"
 
 	core_middleware "golang-clean-server/internal/core/transport/middleware"
 	core_server "golang-clean-server/internal/core/transport/server"
-	boards_repository "golang-clean-server/internal/features/boards/repository"
-	boards_service "golang-clean-server/internal/features/boards/service"
-	boards_transport "golang-clean-server/internal/features/boards/transport"
-	user_repository "golang-clean-server/internal/features/users/repository"
-	user_service "golang-clean-server/internal/features/users/service"
-	users_transport_http "golang-clean-server/internal/features/users/transport/http"
 	"os/signal"
 	"syscall"
 
@@ -28,7 +26,11 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+var timeZone = time.UTC
+
 func main() {
+
+	time.Local = timeZone
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
@@ -36,30 +38,38 @@ func main() {
 	logger, err := core_logger.NewLogger(core_logger.NewConfigMust())
 
 	if err != nil {
-		fmt.Println("failed to init logger : ", err)
+		fmt.Println("failed to init logger: ", err)
 		os.Exit(1)
 	}
+
+	logger.Debug("app time zone", zap.Any("zone", timeZone))
 
 	logger.Debug("starting app")
 
 	logger.Debug("init postgres connection pool")
 	pool, err := repository_pool.NewConnectionPool(ctx, repository_pool.NewConfigMust())
-
 	if err != nil {
 		logger.Fatal("failed to connect postgres pool", zap.Error(err))
 	}
 	defer pool.Close()
 
+	cache, err := repository_cache.NewConnectionCache(ctx, repository_cache.NewConfigMust())
+	if err != nil {
+		logger.Fatal("failed to connect redis cache", zap.Error(err))
+	}
+	defer cache.Close()
+
 	hasher := core_service_hasher.NewHasher(bcrypt.DefaultCost)
 	tokenManager := core_service_token.NewTokenManager(core_service_token.NewConfigMust())
 
-	usersRepository := user_repository.NewUsersRepository(pool)
-	usersService := user_service.NewUsersService(usersRepository, hasher, tokenManager)
-	usersTransport := users_transport_http.NewUsersHandlers(usersService, tokenManager)
+	eventBroker := events.NewBroker()
 
-	boardsRepository := boards_repository.NewBoardsRepository(pool)
-	boardsService := boards_service.NewBoardsService(boardsRepository)
-	boardsTransport := boards_transport.NewBoardsTransport(boardsService, tokenManager)
+	go eventBroker.Listen()
+
+	usersTransport := core_init_features.InitUsers(pool, hasher, tokenManager)
+	boardsTransport := core_init_features.InitBoards(pool, cache, tokenManager, eventBroker)
+	sectionsTransport := core_init_features.InitSections(pool)
+	messagesTransport := core_init_features.InitMessages(pool, tokenManager)
 
 	logger.Debug("init http server")
 	httpServer := core_server.NewServer(
@@ -73,7 +83,13 @@ func main() {
 
 	apiRouter := core_server.NewApiRouter()
 
-	apiRouter.RegisterRoutes(append(usersTransport.Routes(), boardsTransport.Router()...)...)
+	apiRouter.RegisterRoutes(core_server.RoutesMerge(
+		usersTransport.Routes(),
+		boardsTransport.Router(),
+		sectionsTransport.Routes(),
+		messagesTransport.Router(),
+		eventBroker.Routes(),
+	)...)
 
 	httpServer.RegisterApiRouters(apiRouter)
 

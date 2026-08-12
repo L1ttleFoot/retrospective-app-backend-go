@@ -13,10 +13,11 @@ type SectionsHandler struct {
 }
 
 type SectionsService interface {
-	CreateSections(ctx context.Context) ([]domain.Section, error)
+	CreateSections(ctx context.Context, sections []domain.Section) ([]domain.Section, error)
+	GetSections(ctx context.Context, boardId string) ([]domain.Section, error)
 }
 
-func NewSectionsService(sectionsService SectionsService) *SectionsHandler {
+func NewSectionsHandler(sectionsService SectionsService) *SectionsHandler {
 	return &SectionsHandler{sectionsService: sectionsService}
 }
 
@@ -26,6 +27,11 @@ func (h *SectionsHandler) Routes() []core_server.Route {
 			Method:  http.MethodPost,
 			Path:    "/sections",
 			Handler: h.CreateSections,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/sections/{id}",
+			Handler: h.GetSections,
 		},
 	}
 }

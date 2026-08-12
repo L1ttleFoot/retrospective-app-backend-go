@@ -12,7 +12,6 @@ type ApiRouter struct {
 }
 
 func NewApiRouter(middleware ...core_middleware.Middleware) *ApiRouter {
-
 	return &ApiRouter{ServeMux: http.NewServeMux(), Middleware: middleware}
 }
 
@@ -25,4 +24,21 @@ func (r *ApiRouter) RegisterRoutes(routes ...Route) {
 
 		r.Handle(pattern, h)
 	}
+}
+
+func RoutesMerge(slices ...[]Route) []Route {
+
+	totalLen := 0
+
+	for _, s := range slices {
+		totalLen += len(s)
+	}
+
+	result := make([]Route, 0, totalLen)
+
+	for _, s := range slices {
+		result = append(result, s...)
+	}
+
+	return result
 }

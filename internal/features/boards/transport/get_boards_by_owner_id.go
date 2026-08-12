@@ -13,7 +13,7 @@ import (
 type BoardRespons struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
-	OwnerId   string    `json:"ownerId"`
+	OwnerID   string    `json:"ownerId"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
@@ -34,13 +34,18 @@ func (h *BoardsHandler) GetBoardsByOwnerId(w http.ResponseWriter, r *http.Reques
 
 	boardDomain, err := h.boardsService.GetBoardsByOwnerId(ctx, claims.UserID)
 	if err != nil {
-		responseHandler.ErrorResponse(err, " failed to get query params")
+		responseHandler.ErrorResponse(err, " failed to get boards list")
 	}
 
 	boardsRespons := make([]BoardRespons, len(boardDomain))
 
 	for i, v := range boardDomain {
-		boardsRespons[i] = BoardRespons{ID: v.ID, Title: v.Title, OwnerId: v.OwnerId, CreatedAt: v.CreatedAt}
+		boardsRespons[i] = BoardRespons{
+			ID:        v.ID,
+			Title:     v.Title,
+			OwnerID:   v.OwnerID,
+			CreatedAt: v.CreatedAt,
+		}
 	}
 
 	response := GetBoardsByOwnerIdResponse{Boards: boardsRespons}

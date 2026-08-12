@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type JwtManager struct {
+type Tokens struct {
 	accessSecret  []byte
 	refreshSecret []byte
 }
@@ -18,11 +18,11 @@ type JwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-func NewTokenManager(config Config) *JwtManager {
-	return &JwtManager{accessSecret: []byte(config.AccessSecret), refreshSecret: []byte(config.RefreshSecret)}
+func NewTokenManager(config Config) *Tokens {
+	return &Tokens{accessSecret: []byte(config.AccessSecret), refreshSecret: []byte(config.RefreshSecret)}
 }
 
-func (m *JwtManager) Generate(claims TokenClaims, tokenType TokenType, ttl time.Duration) (string, error) {
+func (t *Tokens) Generate(claims TokenClaims, tokenType TokenType, ttl time.Duration) (string, error) {
 
 	jwtClaims := JwtClaims{
 		UserID: claims.UserID,
@@ -36,22 +36,22 @@ func (m *JwtManager) Generate(claims TokenClaims, tokenType TokenType, ttl time.
 	var secret []byte
 
 	if tokenType == TypeAccess {
-		secret = m.accessSecret
+		secret = t.accessSecret
 	} else {
-		secret = m.refreshSecret
+		secret = t.refreshSecret
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtClaims)
 
 	signedToken, err := token.SignedString(secret)
 	if err != nil {
-		return "", fmt.Errorf("sign token error : %w", err)
+		return "", fmt.Errorf("sign token error: %w", err)
 	}
 
 	return signedToken, nil
 }
 
-func (m *JwtManager) Parse(tokenString string, tokenType TokenType) (*TokenClaims, error) {
+func (t *Tokens) Parse(tokenString string, tokenType TokenType) (*TokenClaims, error) {
 
 	var claims JwtClaims
 
@@ -61,13 +61,13 @@ func (m *JwtManager) Parse(tokenString string, tokenType TokenType) (*TokenClaim
 		}
 
 		if tokenType == TypeAccess {
-			return m.accessSecret, nil
+			return t.accessSecret, nil
 		}
-		return m.refreshSecret, nil
+		return t.refreshSecret, nil
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse token : %w", err)
+		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
 
 	if !token.Valid {

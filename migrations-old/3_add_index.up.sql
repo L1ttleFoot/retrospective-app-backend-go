@@ -1,1 +1,0 @@
-CREATE INDEX IF NOT EXISTS idx_task_user ON tasks(user_id);

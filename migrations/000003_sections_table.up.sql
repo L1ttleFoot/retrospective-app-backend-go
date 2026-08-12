@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS sections (
     color      text,
     created_at timestamp DEFAULT clock_timestamp() NOT NULL,
     updated_at timestamp DEFAULT clock_timestamp() NOT NULL,
-    board_id   uuid NOT NULL REFERENCES on boards(id) ON DELETE CASCADE,
+    board_id   uuid NOT NULL REFERENCES boards(id) ON DELETE CASCADE
 )

@@ -10,7 +10,7 @@ func (s *BoardsService) GetBoardsByOwnerId(ctx context.Context, ownerId string) 
 
 	boards, err := s.boardsRepository.GetBoardsByOwnerId(ctx, ownerId)
 	if err != nil {
-		return []domain.Board{}, fmt.Errorf("get boards : %w", err)
+		return []domain.Board{}, fmt.Errorf("get boards: %w", err)
 	}
 
 	return boards, nil

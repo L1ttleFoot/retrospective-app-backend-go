@@ -14,7 +14,7 @@ var requestValidator = validator.New()
 func DecodeAndValidate(r *http.Request, dto any) error {
 	if err := json.NewDecoder(r.Body).Decode(dto); err != nil {
 		return fmt.Errorf(
-			"decode json : %v : %w",
+			"decode json: %v: %w",
 			err,
 			core_errors.ErrInvalideArgument,
 		)
@@ -23,7 +23,7 @@ func DecodeAndValidate(r *http.Request, dto any) error {
 
 	if err := requestValidator.Struct(dto); err != nil {
 		return fmt.Errorf(
-			"request validation : %v : %w",
+			"request validation: %v: %w",
 			err,
 			core_errors.ErrInvalideArgument,
 		)

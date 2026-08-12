@@ -20,9 +20,8 @@ func (r *UsersRepository) GetUsers(ctx context.Context, limit *int, offset *int)
 	`
 
 	rows, err := r.pool.Query(ctx, query, limit, offset)
-
 	if err != nil {
-		return []domain.User{}, fmt.Errorf("pool error : %w", err)
+		return []domain.User{}, fmt.Errorf("pool error: %w", err)
 	}
 	defer rows.Close()
 
@@ -39,7 +38,7 @@ func (r *UsersRepository) GetUsers(ctx context.Context, limit *int, offset *int)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("next rows : %w", err)
+		return nil, fmt.Errorf("next rows: %w", err)
 	}
 
 	userDomains := userDomainsFromModels(userModels)

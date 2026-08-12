@@ -14,6 +14,8 @@ type Pool interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 	Close()
+
+	SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
 }
 
 type ConnectionPool struct {
@@ -34,16 +36,16 @@ func NewConnectionPool(ctx context.Context, config Config) (*ConnectionPool, err
 	pgxconfig, err := pgxpool.ParseConfig(connectionString)
 
 	if err != nil {
-		return nil, fmt.Errorf("parse pgxconfig : %w", err)
+		return nil, fmt.Errorf("parse pgxconfig: %w", err)
 	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, pgxconfig)
 	if err != nil {
-		return nil, fmt.Errorf("create pgxpool : %w", err)
+		return nil, fmt.Errorf("create pgxpool: %w", err)
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		return nil, fmt.Errorf("pgxpool ping : %w", err)
+		return nil, fmt.Errorf("pgxpool ping: %w", err)
 	}
 
 	return &ConnectionPool{Pool: pool}, nil
