@@ -11,8 +11,8 @@ import (
 )
 
 type CreateMessageRequest struct {
-	Text      string `json:"text"`
-	SectionId string `json:"sectionId"`
+	Text      string `json:"text"      validate:"required"`
+	SectionId string `json:"sectionId" validate:"required"`
 }
 
 type CreateMessageResponse struct {

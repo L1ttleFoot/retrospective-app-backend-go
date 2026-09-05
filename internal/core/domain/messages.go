@@ -33,6 +33,15 @@ func NewMessage(
 	}
 }
 
+func (m *Message) ValidateMessage() error {
+
+	if m.Text == "" {
+		return fmt.Errorf("%w: message text cannot be empty", core_errors.ErrInvalideArgument)
+	}
+
+	return nil
+}
+
 type MessagePatch struct {
 	Text      Nullable[string]
 	SectionID Nullable[string]
@@ -42,15 +51,24 @@ func NewMessagePatch(text, sectionId Nullable[string]) MessagePatch {
 	return MessagePatch{Text: text, SectionID: sectionId}
 }
 
-func (p *MessagePatch) ValidateMessage() error {
+func (p *MessagePatch) ValidatePatchMessage() error {
 
-	if p.Text.Set && p.Text.Value == nil {
+	if p.Text.Set && (p.Text.Value == nil || *p.Text.Value == "") {
 		return fmt.Errorf("text is required: %w", core_errors.ErrInvalideArgument)
 	}
 
-	if p.SectionID.Set && p.SectionID.Value == nil {
+	if p.SectionID.Set && (p.SectionID.Value == nil || *p.SectionID.Value == "") {
 		return fmt.Errorf("sectionId is required: %w", core_errors.ErrInvalideArgument)
 	}
 
 	return nil
+}
+
+func (m *Message) ApplyPatch(patch MessagePatch) {
+	if patch.Text.Set {
+		m.Text = *patch.Text.Value
+	}
+	if patch.SectionID.Set {
+		m.SectionID = *patch.SectionID.Value
+	}
 }

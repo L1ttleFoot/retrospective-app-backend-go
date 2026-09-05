@@ -17,7 +17,9 @@ type Config struct {
 }
 
 func NewConfig() (Config, error) {
+
 	var config Config
+
 	if err := envconfig.Process("POSTGRES", &config); err != nil {
 		return Config{}, fmt.Errorf("process envonfig: %w", err)
 	}
@@ -26,6 +28,7 @@ func NewConfig() (Config, error) {
 }
 
 func NewConfigMust() Config {
+
 	config, err := NewConfig()
 
 	if err != nil {

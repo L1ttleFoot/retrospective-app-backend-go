@@ -1,7 +1,6 @@
 package messages_transport
 
 import (
-	"fmt"
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
 	core_request "golang-clean-server/internal/core/transport/request"
@@ -46,11 +45,7 @@ func (h *MessagesHandler) PatchMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("////////////////////////////////////////////////////////////////// req %+v", request)
-
 	messagePatch := messagePatchFromRequest(request)
-
-	fmt.Printf("////////////////////////////////////////////////////////////////// req %+v", messagePatch)
 
 	messageDomain, err := h.messagesService.PatchMessage(ctx, messageId, messagePatch)
 	if err != nil {

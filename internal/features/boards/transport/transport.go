@@ -4,16 +4,17 @@ import (
 	"context"
 	"golang-clean-server/internal/core/domain"
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
+	core_sse "golang-clean-server/internal/core/transport/SSE"
 	core_middleware "golang-clean-server/internal/core/transport/middleware"
 	core_server "golang-clean-server/internal/core/transport/server"
-	"golang-clean-server/internal/features/events"
+
 	"net/http"
 )
 
 type BoardsHandler struct {
 	boardsService BoardsService
 	tokenManager  core_service_tokens.TokenManager
-	eventBroker   *events.Broker
+	eventBroker   *core_sse.Broker
 }
 
 type BoardsService interface {
@@ -25,7 +26,7 @@ type BoardsService interface {
 func NewBoardsHandler(
 	boardsService BoardsService,
 	tokenManager core_service_tokens.TokenManager,
-	eventBroker *events.Broker,
+	eventBroker *core_sse.Broker,
 ) *BoardsHandler {
 	return &BoardsHandler{
 		boardsService: boardsService,

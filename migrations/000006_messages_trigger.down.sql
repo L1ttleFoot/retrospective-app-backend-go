@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS trg_b_update_messages_time ON messages;

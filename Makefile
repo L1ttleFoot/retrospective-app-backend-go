@@ -6,6 +6,9 @@ export PROJECT_ROOT=$(CURDIR)
 run: 
 	@go run cmd/server/main.go  
 
+run2: 
+	@set RABBITMQ_HOST=localhost&& go run cmd/notification/main.go
+
 up:
 	@docker compose up -d --build
 
@@ -46,7 +49,7 @@ migrate-force:
 		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable \
 		force "${v}"
 
-migrate-version:
+migrate-v:
 	@docker compose run --rm db-migrate \
 		-path /migrations \
 		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable \

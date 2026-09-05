@@ -5,14 +5,16 @@ import (
 	"fmt"
 	core_init_features "golang-clean-server/internal/core/init_features"
 	core_logger "golang-clean-server/internal/core/logger"
+	core_rabbitmq "golang-clean-server/internal/core/rabbitmq"
 	repository_cache "golang-clean-server/internal/core/repository/cache"
 	repository_pool "golang-clean-server/internal/core/repository/pool"
 	core_service_hasher "golang-clean-server/internal/core/service/hasher"
 	core_service_token "golang-clean-server/internal/core/service/tokens"
-	"golang-clean-server/internal/features/events"
+	prometheus_transport "golang-clean-server/internal/features/prometheus/transport"
 	"os"
 	"time"
 
+	core_sse "golang-clean-server/internal/core/transport/SSE"
 	core_middleware "golang-clean-server/internal/core/transport/middleware"
 	core_server "golang-clean-server/internal/core/transport/server"
 	"os/signal"
@@ -62,14 +64,25 @@ func main() {
 	hasher := core_service_hasher.NewHasher(bcrypt.DefaultCost)
 	tokenManager := core_service_token.NewTokenManager(core_service_token.NewConfigMust())
 
-	eventBroker := events.NewBroker()
-
+	logger.Debug("init sse broker listner")
+	eventBroker := core_sse.NewBroker()
 	go eventBroker.Listen()
+
+	logger.Debug("init rabbitmq connection")
+	rmqConn, err := core_rabbitmq.NewRabbitMqConnection(core_rabbitmq.NewConfigMust())
+	if err != nil {
+		panic(err)
+	}
+	defer rmqConn.Close()
+
+	rmqPublisher := core_rabbitmq.NewEventPublisher(rmqConn.Connection, logger.Logger)
 
 	usersTransport := core_init_features.InitUsers(pool, hasher, tokenManager)
 	boardsTransport := core_init_features.InitBoards(pool, cache, tokenManager, eventBroker)
 	sectionsTransport := core_init_features.InitSections(pool)
-	messagesTransport := core_init_features.InitMessages(pool, tokenManager)
+	messagesTransport := core_init_features.InitMessages(pool, tokenManager, rmqPublisher)
+
+	prometheusTransport := prometheus_transport.NewPrometheusHandler()
 
 	logger.Debug("init http server")
 	httpServer := core_server.NewServer(
@@ -79,6 +92,7 @@ func main() {
 		core_middleware.Logger(logger),
 		core_middleware.Trace(),
 		core_middleware.Panic(),
+		core_middleware.Metrics(),
 	)
 
 	apiRouter := core_server.NewApiRouter()
@@ -89,6 +103,7 @@ func main() {
 		sectionsTransport.Routes(),
 		messagesTransport.Router(),
 		eventBroker.Routes(),
+		prometheusTransport.Routes(),
 	)...)
 
 	httpServer.RegisterApiRouters(apiRouter)

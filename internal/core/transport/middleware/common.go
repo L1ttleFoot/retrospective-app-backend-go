@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.uber.org/zap"
 )
 
@@ -132,6 +134,37 @@ func Panic() Middleware {
 			}()
 
 			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+var httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	Name:    "http_response_time_seconds",
+	Help:    "Время ответа сервера на HTTP запросы",
+	Buckets: prometheus.DefBuckets,
+}, []string{"path", "method"})
+
+var httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "http_requests_total",
+	Help: "Общее количество HTTP запросов",
+}, []string{"path", "method"})
+
+func Metrics() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/api/metrics" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			start := time.Now()
+
+			next.ServeHTTP(w, r)
+
+			duration := time.Since(start).Seconds()
+
+			httpDuration.WithLabelValues(r.URL.Path, r.Method).Observe(duration)
+			httpRequestsTotal.WithLabelValues(r.URL.Path, r.Method).Inc()
 		})
 	}
 }

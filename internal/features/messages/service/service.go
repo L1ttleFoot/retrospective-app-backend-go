@@ -7,14 +7,27 @@ import (
 
 type MessagesService struct {
 	messagesRepository MessagesRepository
+	rmqPublisher       MessageEventPublisher
+}
+
+type MessageEventPublisher interface {
+	PublishMessageCreated(ctx context.Context, msg domain.Message) error
 }
 
 type MessagesRepository interface {
 	CreateMessage(ctx context.Context, message domain.Message) (domain.Message, error)
 	GetMessagesBySectionId(ctx context.Context, sectionId string) ([]domain.Message, error)
+	GetMessageById(ctx context.Context, messageId string) (domain.Message, error)
+	PatchMessage(ctx context.Context, message domain.Message) (domain.Message, error)
 	DeleteMessage(ctx context.Context, messageId string) error
 }
 
-func NewMessagesService(messagesRepository MessagesRepository) *MessagesService {
-	return &MessagesService{messagesRepository: messagesRepository}
+func NewMessagesService(
+	messagesRepository MessagesRepository,
+	rmqPublisher MessageEventPublisher,
+) *MessagesService {
+	return &MessagesService{
+		messagesRepository: messagesRepository,
+		rmqPublisher:       rmqPublisher,
+	}
 }

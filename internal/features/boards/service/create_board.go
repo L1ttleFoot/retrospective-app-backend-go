@@ -8,6 +8,10 @@ import (
 
 func (s *BoardsService) CreateBoard(ctx context.Context, board domain.Board) (domain.Board, error) {
 
+	if err := board.ValidateBoard(); err != nil {
+		return domain.Board{}, fmt.Errorf("validate board: %w", err)
+	}
+
 	createdBoard, err := s.boardsRepository.CreateBoard(ctx, board)
 	if err != nil {
 		return domain.Board{}, fmt.Errorf("create board: %w", err)

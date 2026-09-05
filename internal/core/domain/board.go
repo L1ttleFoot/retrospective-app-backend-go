@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"fmt"
+	core_errors "golang-clean-server/internal/core/errors"
+	"time"
+)
 
 type Board struct {
 	ID        string
@@ -21,4 +25,13 @@ func NewBoard(
 		OwnerID:   ownerId,
 		CreatedAt: createdAt,
 	}
+}
+
+func (b *Board) ValidateBoard() error {
+
+	if b.Title == "" {
+		return fmt.Errorf("%w: board title cannot be empty", core_errors.ErrInvalideArgument)
+	}
+
+	return nil
 }

@@ -58,7 +58,7 @@ func (c *ConnectionCache) Get(ctx context.Context, key string, dest any) error {
 }
 
 func (c *ConnectionCache) Delete(ctx context.Context, key string) error {
-	if err := c.Client.Del(ctx, key); err != nil {
+	if err := c.Client.Del(ctx, key).Err(); err != nil {
 		return fmt.Errorf("unable to delete data from cache: %w", err)
 	}
 

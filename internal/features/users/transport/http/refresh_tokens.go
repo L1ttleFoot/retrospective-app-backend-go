@@ -22,6 +22,7 @@ func (h *UsersHandler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refreshToken")
 	if err != nil {
 		responseHandler.ErrorResponse(err, "Refresh token cookie missing")
+		return
 	}
 
 	refreshToken := cookie.Value

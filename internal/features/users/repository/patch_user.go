@@ -23,7 +23,7 @@ func (r *UsersRepository) PatchUser(ctx context.Context, userId string, user dom
 
 	var userModel UserModel
 
-	if err := row.Scan(&userModel.ID, userModel.Username); err != nil {
+	if err := row.Scan(&userModel.ID, &userModel.Username); err != nil {
 		return domain.User{}, fmt.Errorf("scarn error: %w", err)
 	}
 

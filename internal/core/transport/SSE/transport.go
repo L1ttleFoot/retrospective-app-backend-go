@@ -1,4 +1,4 @@
-package events
+package core_sse
 
 import (
 	"fmt"
@@ -26,7 +26,6 @@ func (b *Broker) StreamEvent(w http.ResponseWriter, r *http.Request) {
 
 	flusher, ok := w.(http.Flusher)
 	if ok {
-		// Отправляем пустой хук или:ok сразу, чтобы "пробить" соединение до браузера
 		fmt.Fprintf(w, ":ok\n\n")
 		flusher.Flush()
 	}
@@ -46,12 +45,10 @@ func (b *Broker) StreamEvent(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		select {
-		case <-ctx.Done(): // Если клиент закрыл вкладку/соединение
+		case <-ctx.Done():
 			log.Debug("Клиент отключился")
 			return
 		case <-pingTicker.C:
-			// Отправляем SSE-комментарий в качестве пинга
-			// Браузер его проигнорирует, но прокси-сервер поймет, что соединение живо
 			_, err := fmt.Fprintf(w, ":ok\n\n")
 			if err != nil {
 				return
@@ -59,17 +56,15 @@ func (b *Broker) StreamEvent(w http.ResponseWriter, r *http.Request) {
 			if hasFlusher {
 				flusher.Flush()
 			}
-		case msg, open := <-messageChan: // Ждем новое сообщение
+		case msg, open := <-messageChan:
 			if !open {
 				return
 			}
-			// Форматирование сообщения по спецификации SSE (data: <содержимое>\n\n)
 			_, err := fmt.Fprintf(w, "data: %s\n\n", msg)
 			if err != nil {
 				return
 			}
 
-			// Сброс буфера в сеть, чтобы клиент сразу получил данные
 			if flusher, ok := w.(http.Flusher); ok {
 				flusher.Flush()
 			}

@@ -1,6 +1,7 @@
 package core_init_features
 
 import (
+	core_rabbitmq "golang-clean-server/internal/core/rabbitmq"
 	repository_pool "golang-clean-server/internal/core/repository/pool"
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
 	messages_repository "golang-clean-server/internal/features/messages/repository"
@@ -11,10 +12,11 @@ import (
 func InitMessages(
 	pool *repository_pool.ConnectionPool,
 	tokenManager core_service_tokens.TokenManager,
+	rmqPublisher *core_rabbitmq.EventPublisher,
 ) *messages_transport.MessagesHandler {
 
 	messagerRepository := messages_repository.NewMessagesRepository(pool)
-	messagesService := messages_service.NewMessagesService(messagerRepository)
+	messagesService := messages_service.NewMessagesService(messagerRepository, rmqPublisher)
 	messagesTransport := messages_transport.NewMessagesTransport(messagesService, tokenManager)
 
 	return messagesTransport

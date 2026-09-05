@@ -19,12 +19,30 @@ services:
 
       ADDR: ${ADDR}
       LOGGER_LEVEL: ${LOGGER_LEVEL}
+
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     depends_on:
       - postgres_db
       - redis_cache
+      - rabbitmq
     ports: 
       - "8080:8080"
       - "8081:8081"
+
+  notification-app:
+    container_name: notifications
+    build:
+      context: .
+      args:
+        - SERVER_PATH=cmd/notification/main.go
+    environment:
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      - rabbitmq
   
   postgres_db:
     image: postgres:17-alpine
@@ -63,6 +81,50 @@ services:
     depends_on:
       - go-app
 
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_logs:/var/log/rabbitmq
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    depends_on:
+      - go-app 
+
+  grafana:
+    image: grafana/grafana:11.5.1
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
+  
   redis_data:
+
+  rabbitmq_data:
+  rabbitmq_logs:
+
+  prometheus_data:
+  grafana_data:    

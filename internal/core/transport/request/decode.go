@@ -18,7 +18,6 @@ func DecodeAndValidate(r *http.Request, dto any) error {
 			err,
 			core_errors.ErrInvalideArgument,
 		)
-
 	}
 
 	if err := requestValidator.Struct(dto); err != nil {

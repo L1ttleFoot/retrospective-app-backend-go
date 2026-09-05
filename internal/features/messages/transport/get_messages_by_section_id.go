@@ -19,7 +19,7 @@ type MessagesResponse struct {
 }
 
 type GetMessagesBySectionIdResponse struct {
-	Messages []MessagesResponse `json:"messages"`
+	Messages []MessagesResponse `json:"messages" validate:"required"`
 }
 
 func (h *MessagesHandler) GetMessagesBySectionId(w http.ResponseWriter, r *http.Request) {

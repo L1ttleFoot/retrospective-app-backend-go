@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-type SectionsItem struct {
+type SectionsItemRequest struct {
 	Title   string `json:"title"`
 	Color   string `json:"color"`
 	BoardID string `json:"boardId"`
@@ -23,7 +23,7 @@ type SectionsItemResponse struct {
 }
 
 type CreateSectionsRequest struct {
-	Sections []SectionsItem `json:"sections"`
+	Sections []SectionsItemRequest `json:"sections" validate:"required"`
 }
 
 type CreateSectionsResponse struct {

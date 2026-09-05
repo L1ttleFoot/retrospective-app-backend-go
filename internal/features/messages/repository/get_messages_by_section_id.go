@@ -18,6 +18,7 @@ func (r *MessagesRepository) GetMessagesBySectionId(ctx context.Context, section
 	SELECT id, text, author_id, created_at, updated_at, section_id
 	FROM messages
 	WHERE section_id = $1
+	ORDER BY updated_at ASC
 	`
 
 	rows, err := r.pool.Query(ctx, query, sectionId)
