@@ -11,3 +11,11 @@ type Route struct {
 	Handler    http.HandlerFunc
 	Middleware []core_middleware.Middleware
 }
+
+func (r *Route) WithMiddleware() http.Handler {
+
+	return core_middleware.ChainMiddleware(
+		r.Handler,
+		r.Middleware...,
+	)
+}

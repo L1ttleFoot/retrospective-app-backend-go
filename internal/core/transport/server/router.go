@@ -20,10 +20,15 @@ func (r *ApiRouter) RegisterRoutes(routes ...Route) {
 
 		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
 
-		h := core_middleware.ChainMiddleware(route.Handler, route.Middleware...)
-
-		r.Handle(pattern, h)
+		r.Handle(pattern, route.WithMiddleware())
 	}
+}
+
+func (r *ApiRouter) WithMiddleware() http.Handler {
+	return core_middleware.ChainMiddleware(
+		r,
+		r.Middleware...,
+	)
 }
 
 func RoutesMerge(slices ...[]Route) []Route {

@@ -15,12 +15,12 @@ func (r *MessagesRepository) CreateMessage(ctx context.Context, message domain.M
 	query := `
 		INSERT INTO messages (text, author_id, section_id)
 		VALUES ($1,$2,$3)
-		RETURNING id, created_at, updated_at
+		RETURNING id, created_at, updated_at, pinned_at
 	`
 
 	row := r.pool.QueryRow(ctx, query, message.Text, message.AuthorID, message.SectionID)
 
-	if err := row.Scan(&message.ID, &message.CreatedAt, &message.UpdatedAt); err != nil {
+	if err := row.Scan(&message.ID, &message.CreatedAt, &message.UpdatedAt, &message.PinnedAt); err != nil {
 		return domain.Message{}, fmt.Errorf("board scan error: %w", err)
 	}
 
@@ -30,6 +30,7 @@ func (r *MessagesRepository) CreateMessage(ctx context.Context, message domain.M
 		message.AuthorID,
 		message.CreatedAt,
 		message.UpdatedAt,
+		message.PinnedAt,
 		message.SectionID,
 	)
 

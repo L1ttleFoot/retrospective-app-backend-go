@@ -60,3 +60,6 @@ migrate-up:
 
 migrate-down:
 	make migrate-action action=down
+
+test:
+	@go test ./...

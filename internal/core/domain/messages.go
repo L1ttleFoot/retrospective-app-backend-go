@@ -12,6 +12,7 @@ type Message struct {
 	AuthorID  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	PinnedAt  *time.Time
 	SectionID string
 }
 
@@ -21,6 +22,7 @@ func NewMessage(
 	authorId string,
 	createdAt time.Time,
 	updatedAt time.Time,
+	pinned_at *time.Time,
 	sectionId string,
 ) Message {
 	return Message{
@@ -29,6 +31,7 @@ func NewMessage(
 		AuthorID:  authorId,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
+		PinnedAt:  pinned_at,
 		SectionID: sectionId,
 	}
 }
@@ -36,7 +39,7 @@ func NewMessage(
 func (m *Message) ValidateMessage() error {
 
 	if m.Text == "" {
-		return fmt.Errorf("%w: message text cannot be empty", core_errors.ErrInvalideArgument)
+		return fmt.Errorf("%w: message text cannot be empty", core_errors.ErrInvalidArgument)
 	}
 
 	return nil
@@ -54,11 +57,11 @@ func NewMessagePatch(text, sectionId Nullable[string]) MessagePatch {
 func (p *MessagePatch) ValidatePatchMessage() error {
 
 	if p.Text.Set && (p.Text.Value == nil || *p.Text.Value == "") {
-		return fmt.Errorf("text is required: %w", core_errors.ErrInvalideArgument)
+		return fmt.Errorf("text is required: %w", core_errors.ErrInvalidArgument)
 	}
 
 	if p.SectionID.Set && (p.SectionID.Value == nil || *p.SectionID.Value == "") {
-		return fmt.Errorf("sectionId is required: %w", core_errors.ErrInvalideArgument)
+		return fmt.Errorf("sectionId is required: %w", core_errors.ErrInvalidArgument)
 	}
 
 	return nil

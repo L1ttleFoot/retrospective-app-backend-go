@@ -60,12 +60,12 @@ func (p *EventPublisher) Publish(ctx context.Context, queueName string, body []b
 	return nil
 }
 
-func (p *EventPublisher) PublishMessageCreated(ctx context.Context, msg domain.Message) error {
+func (p *EventPublisher) PublishMessageCreated(ctx context.Context, queue string, msg domain.Message) error {
 
 	bytes, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("marshal message error: %w", err)
 	}
 
-	return p.Publish(ctx, "messages.created", bytes)
+	return p.Publish(ctx, queue, bytes)
 }

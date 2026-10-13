@@ -1,7 +1,6 @@
 package core_middleware
 
 import (
-	"context"
 	"fmt"
 	core_errors "golang-clean-server/internal/core/errors"
 	core_logger "golang-clean-server/internal/core/logger"
@@ -47,7 +46,7 @@ func Auth(tm core_service_tokens.TokenManager) Middleware {
 				return
 			}
 
-			ctx = context.WithValue(r.Context(), "claims", claims)
+			ctx = core_service_tokens.WithClaims(ctx, claims)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -149,7 +148,7 @@ var httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 	Help: "Общее количество HTTP запросов",
 }, []string{"path", "method"})
 
-func Metrics() func(http.Handler) http.Handler {
+func Metrics() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/api/metrics" {

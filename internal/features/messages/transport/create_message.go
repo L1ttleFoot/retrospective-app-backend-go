@@ -16,12 +16,13 @@ type CreateMessageRequest struct {
 }
 
 type CreateMessageResponse struct {
-	ID        string    `json:"id"`
-	Text      string    `json:"text"`
-	AuthorId  string    `json:"authorId"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	SectionId string    `json:"sectionId"`
+	ID        string     `json:"id"`
+	Text      string     `json:"text"`
+	AuthorId  string     `json:"authorId"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	PinnedAt  *time.Time `json:"pinnedAt"`
+	SectionId string     `json:"sectionId"`
 }
 
 func (h *MessagesHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
@@ -60,6 +61,7 @@ func (h *MessagesHandler) CreateMessage(w http.ResponseWriter, r *http.Request) 
 		AuthorId:  messageDomain.AuthorID,
 		CreatedAt: messageDomain.CreatedAt,
 		UpdatedAt: messageDomain.UpdatedAt,
+		PinnedAt:  messageDomain.PinnedAt,
 		SectionId: messageDomain.SectionID,
 	}
 

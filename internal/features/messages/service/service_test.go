@@ -58,9 +58,24 @@ func (m *mockMessagesRepository) DeleteMessage(ctx context.Context, messageId st
 	return nil
 }
 
+func (m *mockMessagesRepository) PinMessage(ctx context.Context, messageId string) error {
+
+	return nil
+}
+
+func (m *mockMessagesRepository) UnpinMessage(ctx context.Context, messageId string) error {
+
+	return nil
+}
+
+func (m *mockMessagesRepository) SetReaction(ctx context.Context, reaction string, messageId string, authorId string) error {
+
+	return nil
+}
+
 type mockMessageEventPublisher struct{}
 
-func (m *mockMessageEventPublisher) PublishMessageCreated(ctx context.Context, msg domain.Message) error {
+func (m *mockMessageEventPublisher) PublishMessageCreated(ctx context.Context, queue string, msg domain.Message) error {
 	return nil
 }
 
@@ -79,6 +94,7 @@ func TestMessagesService_CreateMessage(t *testing.T) {
 		"author-1",
 		timeNow(),
 		timeNow(),
+		nil,
 		"section-1",
 	)
 
@@ -105,9 +121,9 @@ func TestMessagesService_CreateMessage_ValidationError(t *testing.T) {
 
 func TestMessagesService_GetMessagesBySectionId(t *testing.T) {
 	mockRepo := newMockMessagesRepository()
-	mockRepo.messages["1"] = domain.NewMessage("1", "msg1", "a1", timeNow(), timeNow(), "s1")
-	mockRepo.messages["2"] = domain.NewMessage("2", "msg2", "a1", timeNow(), timeNow(), "s1")
-	mockRepo.messages["3"] = domain.NewMessage("3", "msg3", "a1", timeNow(), timeNow(), "s2")
+	mockRepo.messages["1"] = domain.NewMessage("1", "msg1", "a1", timeNow(), timeNow(), nil, "s1")
+	mockRepo.messages["2"] = domain.NewMessage("2", "msg2", "a1", timeNow(), timeNow(), nil, "s1")
+	mockRepo.messages["3"] = domain.NewMessage("3", "msg3", "a1", timeNow(), timeNow(), nil, "s2")
 
 	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{})
 
@@ -127,6 +143,7 @@ func TestMessagesService_PatchMessage(t *testing.T) {
 		"author-1",
 		timeNow(),
 		timeNow(),
+		nil,
 		"section-1",
 	)
 	mockRepo.messages["1"] = original
@@ -142,6 +159,7 @@ func TestMessagesService_PatchMessage(t *testing.T) {
 		"author-1",
 		timeNow(),
 		timeNow(),
+		nil,
 		"section-1",
 	)
 	mockRepo.messages["1"] = updated
@@ -157,7 +175,7 @@ func TestMessagesService_PatchMessage(t *testing.T) {
 
 func TestMessagesService_DeleteMessage(t *testing.T) {
 	mockRepo := newMockMessagesRepository()
-	mockRepo.messages["1"] = domain.NewMessage("1", "text", "a1", timeNow(), timeNow(), "s1")
+	mockRepo.messages["1"] = domain.NewMessage("1", "text", "a1", timeNow(), timeNow(), nil, "s1")
 
 	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{})
 

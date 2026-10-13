@@ -16,7 +16,7 @@ func (r *MessagesRepository) PatchMessage(ctx context.Context, message domain.Me
 	UPDATE messages
 	SET text=$1, section_id=$2
 	WHERE id=$3
-	RETURNING id, text, author_id, created_at, updated_at, section_id
+	RETURNING id, text, author_id, created_at, updated_at, pinned_at, section_id
 	`
 
 	row := r.pool.QueryRow(ctx, query, message.Text, message.SectionID, message.ID)
@@ -29,6 +29,7 @@ func (r *MessagesRepository) PatchMessage(ctx context.Context, message domain.Me
 		&messageDomain.AuthorID,
 		&messageDomain.CreatedAt,
 		&messageDomain.UpdatedAt,
+		&messageDomain.PinnedAt,
 		&messageDomain.SectionID,
 	); err != nil {
 		return domain.Message{}, fmt.Errorf("scarn error: %w", err)

@@ -15,10 +15,6 @@ type BoardsRepository interface {
 	DeleteBoard(ctx context.Context, boardId string) error
 }
 
-type BoardsCacheRepository interface {
-	Set(ctx context.Context) error
-}
-
 func NewBoardsService(
 	boardsRepository BoardsRepository,
 ) *BoardsService {

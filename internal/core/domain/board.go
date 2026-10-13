@@ -30,7 +30,7 @@ func NewBoard(
 func (b *Board) ValidateBoard() error {
 
 	if b.Title == "" {
-		return fmt.Errorf("%w: board title cannot be empty", core_errors.ErrInvalideArgument)
+		return fmt.Errorf("%w: board title cannot be empty", core_errors.ErrInvalidArgument)
 	}
 
 	return nil

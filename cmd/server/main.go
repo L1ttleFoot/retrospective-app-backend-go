@@ -81,6 +81,7 @@ func main() {
 	boardsTransport := core_init_features.InitBoards(pool, cache, tokenManager, eventBroker)
 	sectionsTransport := core_init_features.InitSections(pool)
 	messagesTransport := core_init_features.InitMessages(pool, tokenManager, rmqPublisher)
+	templatesTransport := core_init_features.InitTemplates(pool, tokenManager)
 
 	prometheusTransport := prometheus_transport.NewPrometheusHandler()
 
@@ -102,6 +103,7 @@ func main() {
 		boardsTransport.Router(),
 		sectionsTransport.Routes(),
 		messagesTransport.Router(),
+		templatesTransport.Router(),
 		eventBroker.Routes(),
 		prometheusTransport.Routes(),
 	)...)

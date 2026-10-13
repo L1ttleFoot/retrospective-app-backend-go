@@ -29,7 +29,7 @@ func (r *SectionsRepository) CreateSections(ctx context.Context, sections []doma
 	br := r.pool.SendBatch(ctx, batch)
 	defer br.Close()
 
-	domainSections := make([]domain.Section, len(sections))
+	domainSections := make([]domain.Section, 0, len(sections))
 
 	for i, v := range sections {
 
@@ -40,10 +40,8 @@ func (r *SectionsRepository) CreateSections(ctx context.Context, sections []doma
 			return nil, fmt.Errorf("scany error at index %d: %w", i, err)
 		}
 
-		domainSections[i] = domain.NewSection(s.ID, v.Title, v.Color, v.BoardID, s.CreatedAt)
+		domainSections = append(domainSections, domain.NewSection(s.ID, v.Title, v.Color, v.BoardID, s.CreatedAt))
 	}
-
-	fmt.Printf("%+v", domainSections)
 
 	return domainSections, nil
 }

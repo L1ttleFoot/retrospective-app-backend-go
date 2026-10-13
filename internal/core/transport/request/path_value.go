@@ -16,7 +16,7 @@ func GetPathValue(r *http.Request, key string) (string, error) {
 		return "", fmt.Errorf(
 			"no key=%s in path values: %w",
 			key,
-			core_errors.ErrInvalideArgument,
+			core_errors.ErrInvalidArgument,
 		)
 	}
 
@@ -26,7 +26,7 @@ func GetPathValue(r *http.Request, key string) (string, error) {
 			pathValue,
 			key,
 			err,
-			core_errors.ErrInvalideArgument,
+			core_errors.ErrInvalidArgument,
 		)
 	}
 

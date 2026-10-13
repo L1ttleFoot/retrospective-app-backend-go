@@ -16,7 +16,7 @@ func DecodeAndValidate(r *http.Request, dto any) error {
 		return fmt.Errorf(
 			"decode json: %v: %w",
 			err,
-			core_errors.ErrInvalideArgument,
+			core_errors.ErrInvalidArgument,
 		)
 	}
 
@@ -24,7 +24,7 @@ func DecodeAndValidate(r *http.Request, dto any) error {
 		return fmt.Errorf(
 			"request validation: %v: %w",
 			err,
-			core_errors.ErrInvalideArgument,
+			core_errors.ErrInvalidArgument,
 		)
 	}
 

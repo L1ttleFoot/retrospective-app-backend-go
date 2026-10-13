@@ -14,8 +14,7 @@ import (
 )
 
 type CreateBoardRequest struct {
-	Title   string `json:"title" validate:"required"`
-	OwnerID string `json:"ownerId"`
+	Title string `json:"title" validate:"required"`
 }
 
 type CreateBoardResponse struct {

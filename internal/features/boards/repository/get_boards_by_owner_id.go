@@ -34,7 +34,6 @@ func (r *BoardsRepository) GetBoardsByOwnerId(ctx context.Context, ownerId strin
 	`
 
 	rows, err := r.pool.Query(ctx, query, ownerId)
-
 	if err != nil {
 		return []domain.Board{}, fmt.Errorf("pool error: %w", err)
 	}
@@ -44,14 +43,14 @@ func (r *BoardsRepository) GetBoardsByOwnerId(ctx context.Context, ownerId strin
 		var b domain.Board
 
 		if err := rows.Scan(&b.ID, &b.Title, &b.OwnerID, &b.CreatedAt); err != nil {
-			return nil, fmt.Errorf("scan boadr row: %w", err)
+			return []domain.Board{}, fmt.Errorf("scan board row: %w", err)
 		}
 
 		boardDomains = append(boardDomains, b)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("next rows: %w", err)
+		return []domain.Board{}, fmt.Errorf("next rows: %w", err)
 	}
 
 	_ = r.cache.Set(ctx, cacheKey, boardDomains, 30*time.Second)

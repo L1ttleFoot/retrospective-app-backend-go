@@ -56,6 +56,8 @@ func (r *NotificationRepository) SendNotification(text string) error {
 		return fmt.Errorf("decode telegram response: %w", err)
 	}
 
+	fmt.Println(notificationResponse, resp.StatusCode != http.StatusOK || !notificationResponse.OK)
+
 	if resp.StatusCode != http.StatusOK || !notificationResponse.OK {
 		return fmt.Errorf(
 			"telegram API error: status=%d description=%s",

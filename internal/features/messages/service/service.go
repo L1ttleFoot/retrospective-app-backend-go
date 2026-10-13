@@ -11,7 +11,7 @@ type MessagesService struct {
 }
 
 type MessageEventPublisher interface {
-	PublishMessageCreated(ctx context.Context, msg domain.Message) error
+	PublishMessageCreated(ctx context.Context, queue string, msg domain.Message) error
 }
 
 type MessagesRepository interface {
@@ -20,6 +20,9 @@ type MessagesRepository interface {
 	GetMessageById(ctx context.Context, messageId string) (domain.Message, error)
 	PatchMessage(ctx context.Context, message domain.Message) (domain.Message, error)
 	DeleteMessage(ctx context.Context, messageId string) error
+	PinMessage(ctx context.Context, messageId string) error
+	UnpinMessage(ctx context.Context, messageId string) error
+	SetReaction(ctx context.Context, reaction, messageId, authorId string) error
 }
 
 func NewMessagesService(

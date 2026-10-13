@@ -35,7 +35,7 @@ func (r *BoardsRepository) DeleteBoard(ctx context.Context, boardId string) erro
 
 	cacheKey := fmt.Sprintf("board:owner:%s", ownerId)
 	if err := r.cache.Delete(ctx, cacheKey); err != nil {
-
+		return fmt.Errorf("failed to delete board from cache: %w", err)
 	}
 
 	return nil

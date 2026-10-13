@@ -33,10 +33,15 @@ func (h *SectionsHandler) GetSections(w http.ResponseWriter, r *http.Request) {
 	responseSections := make([]SectionsItemResponse, len(sectionDomains))
 
 	for i, s := range sectionDomains {
-		responseSections[i] = SectionsItemResponse{ID: s.ID, Title: s.Title, Color: s.Color, BoardID: s.BoardID}
+		responseSections[i] = SectionsItemResponse{
+			ID:      s.ID,
+			Title:   s.Title,
+			Color:   s.Color,
+			BoardID: s.BoardID,
+		}
 	}
 
-	response := CreateSectionsResponse{
+	response := GetSectionsResponse{
 		Sections: responseSections,
 	}
 

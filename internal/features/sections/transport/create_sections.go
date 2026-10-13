@@ -1,12 +1,12 @@
 package sections_transport
 
 import (
-	"fmt"
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
 	core_request "golang-clean-server/internal/core/transport/request"
 	core_response "golang-clean-server/internal/core/transport/response"
 	"net/http"
+	"time"
 )
 
 type SectionsItemRequest struct {
@@ -44,10 +44,11 @@ func (h *SectionsHandler) CreateSections(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	domainSections := make([]domain.Section, len(request.Sections))
+	domainSections := make([]domain.Section, 0, len(request.Sections))
 
-	for i, s := range request.Sections {
-		domainSections[i] = domain.Section{Title: s.Title, Color: s.Color, BoardID: s.BoardID}
+	for _, s := range request.Sections {
+		newSection := domain.NewSection("", s.Title, s.Color, s.BoardID, time.Time{})
+		domainSections = append(domainSections, newSection)
 	}
 
 	domainSections, err := h.sectionsService.CreateSections(ctx, domainSections)
@@ -56,12 +57,10 @@ func (h *SectionsHandler) CreateSections(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	responseSections := make([]SectionsItemResponse, len(domainSections))
+	responseSections := make([]SectionsItemResponse, 0, len(domainSections))
 
-	fmt.Printf("domain sections: %+v", domainSections)
-
-	for i, s := range domainSections {
-		responseSections[i] = SectionsItemResponse{ID: s.ID, Title: s.Title, Color: s.Color, BoardID: s.BoardID}
+	for _, s := range domainSections {
+		responseSections = append(responseSections, SectionsItemResponse{ID: s.ID, Title: s.Title, Color: s.Color, BoardID: s.BoardID})
 	}
 
 	response := CreateSectionsResponse{

@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+type ctxKeyClaims string
+
+const claimsKey ctxKeyClaims = "claims"
+
 type TokenType string
 
 const (
@@ -21,8 +25,12 @@ type TokenManager interface {
 	Parse(token string, tokenType TokenType) (*TokenClaims, error)
 }
 
+func WithClaims(ctx context.Context, claims *TokenClaims) context.Context {
+	return context.WithValue(ctx, claimsKey, claims)
+}
+
 func FromContext(ctx context.Context) *TokenClaims {
-	claims, ok := ctx.Value("claims").(*TokenClaims)
+	claims, ok := ctx.Value(claimsKey).(*TokenClaims)
 	if !ok {
 		panic("no claims in context")
 	}

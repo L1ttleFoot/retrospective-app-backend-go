@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"golang-clean-server/internal/core/domain"
+	core_rabbitmq "golang-clean-server/internal/core/rabbitmq"
 )
 
 func (s *MessagesService) CreateMessage(ctx context.Context, message domain.Message) (domain.Message, error) {
@@ -17,7 +18,7 @@ func (s *MessagesService) CreateMessage(ctx context.Context, message domain.Mess
 		return domain.Message{}, fmt.Errorf("create board: %w", err)
 	}
 
-	s.rmqPublisher.PublishMessageCreated(ctx, message)
+	s.rmqPublisher.PublishMessageCreated(ctx, core_rabbitmq.QueueMessageCreated, message)
 
 	return message, nil
 }

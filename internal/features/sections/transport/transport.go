@@ -30,7 +30,7 @@ func (h *SectionsHandler) Routes() []core_server.Route {
 		},
 		{
 			Method:  http.MethodGet,
-			Path:    "/sections/{id}",
+			Path:    "/boards/{id}/sections",
 			Handler: h.GetSections,
 		},
 	}

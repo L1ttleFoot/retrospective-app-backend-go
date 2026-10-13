@@ -17,7 +17,7 @@ func (r *MessagesRepository) GetMessageById(ctx context.Context, messageId strin
 	defer cancel()
 
 	query := `
-	SELECT id, text, author_id, created_at, updated_at, section_id
+	SELECT id, text, author_id, created_at, updated_at, pinned_at, section_id
 	FROM messages
 	WHERE id = $1
 	`
@@ -32,6 +32,7 @@ func (r *MessagesRepository) GetMessageById(ctx context.Context, messageId strin
 		&messageDomain.AuthorID,
 		&messageDomain.CreatedAt,
 		&messageDomain.UpdatedAt,
+		&messageDomain.PinnedAt,
 		&messageDomain.SectionID,
 	)
 

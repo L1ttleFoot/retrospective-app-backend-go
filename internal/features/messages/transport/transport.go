@@ -19,6 +19,9 @@ type MessagesService interface {
 	GetMessagesBySectionId(ctx context.Context, sectionId string) ([]domain.Message, error)
 	PatchMessage(ctx context.Context, messageId string, messagePatch domain.MessagePatch) (domain.Message, error)
 	DeleteMessage(ctx context.Context, messageId string) error
+	PinMessage(ctx context.Context, messageId string) error
+	UnpinMessage(ctx context.Context, messageId string) error
+	SetReaction(ctx context.Context, reaction, messageId, authorId string) error
 }
 
 func NewMessagesTransport(
@@ -35,7 +38,7 @@ func (h *MessagesHandler) Router() []core_server.Route {
 	return []core_server.Route{
 		{
 			Method:  http.MethodGet,
-			Path:    "/messages/{sectionId}",
+			Path:    "/sections/{sectionId}/messages",
 			Handler: h.GetMessagesBySectionId,
 		},
 		{
@@ -55,6 +58,24 @@ func (h *MessagesHandler) Router() []core_server.Route {
 			Path:    "/messages/{id}",
 			Handler: h.PatchMessage,
 			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/messages/{id}/pin",
+			Handler: h.PinMessage,
+			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/messages/{id}/unpin",
+			Handler: h.UnpinMessage,
+			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+		},
+		{
+			Method:     http.MethodPost,
+			Path:       "/messages/{id}/reaction",
+			Handler:    h.SetReaction,
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
 		},
 	}
 }

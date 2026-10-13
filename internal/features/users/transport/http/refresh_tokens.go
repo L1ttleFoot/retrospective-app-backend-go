@@ -4,6 +4,7 @@ import (
 	core_logger "golang-clean-server/internal/core/logger"
 	core_response "golang-clean-server/internal/core/transport/response"
 	"net/http"
+	"time"
 )
 
 type RefreshTokensResponse struct {
@@ -39,6 +40,7 @@ func (h *UsersHandler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
+		MaxAge:   int((15 * 24 * time.Hour).Seconds()),
 	})
 
 	response := RefreshTokensResponse{

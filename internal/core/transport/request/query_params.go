@@ -41,7 +41,7 @@ func GetQueryParams[T any](r *http.Request, key string) (*T, error) {
 	if err != nil {
 		return nil, fmt.Errorf(
 			"param='%s' by key='%s' is not a valid value: %v: %w",
-			param, key, err, core_errors.ErrInvalideArgument,
+			param, key, err, core_errors.ErrInvalidArgument,
 		)
 	}
 

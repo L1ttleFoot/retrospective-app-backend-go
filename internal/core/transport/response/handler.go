@@ -37,7 +37,7 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 	switch {
 	case errors.Is(err, core_errors.ErrUnauthorized):
 		statusCode = http.StatusUnauthorized
-	case errors.Is(err, core_errors.ErrInvalideArgument):
+	case errors.Is(err, core_errors.ErrInvalidArgument):
 		statusCode = http.StatusBadRequest
 	case errors.Is(err, core_errors.ErrNotFound):
 		statusCode = http.StatusNotFound
@@ -50,7 +50,7 @@ func (h *ResponseHandler) ErrorResponse(err error, message string) {
 	response := map[string]string{"message": message, "error": err.Error()}
 
 	if err := json.NewEncoder(h.w).Encode(response); err != nil {
-		h.log.Error("write http respons", zap.Error(err))
+		h.log.Error("write http response", zap.Error(err))
 	}
 }
 

@@ -35,7 +35,7 @@ func NewUserPatch(username Nullable[string]) UserPatch {
 
 func (p *UserPatch) Validate() error {
 	if p.Username.Set && p.Username.Value == nil {
-		return fmt.Errorf("username is required: %w", core_errors.ErrInvalideArgument)
+		return fmt.Errorf("username is required: %w", core_errors.ErrInvalidArgument)
 	}
 
 	return nil

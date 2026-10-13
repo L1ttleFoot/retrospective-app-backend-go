@@ -9,13 +9,14 @@ import (
 )
 
 type MessagesResponse struct {
-	ID        string    `json:"id"`
-	Text      string    `json:"text"`
-	AuthorId  string    `json:"authorId"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	SectionId string    `json:"sectionId"`
-	Reactions []int     `json:"reactions"`
+	ID        string     `json:"id"`
+	Text      string     `json:"text"`
+	AuthorId  string     `json:"authorId"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	PinnedAt  *time.Time `json:"pinnedAt"`
+	SectionId string     `json:"sectionId"`
+	Reactions []int      `json:"reactions"`
 }
 
 type GetMessagesBySectionIdResponse struct {
@@ -51,6 +52,7 @@ func (h *MessagesHandler) GetMessagesBySectionId(w http.ResponseWriter, r *http.
 			AuthorId:  v.AuthorID,
 			CreatedAt: v.CreatedAt,
 			UpdatedAt: v.UpdatedAt,
+			PinnedAt:  v.PinnedAt,
 			SectionId: v.SectionID,
 			Reactions: make([]int, 0),
 		}

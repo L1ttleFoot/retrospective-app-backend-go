@@ -14,11 +14,10 @@ func (r *MessagesRepository) DeleteMessage(ctx context.Context, messageId string
 
 	query := `
 	DELETE FROM messages
-	WHERE id = $1
+	WHERE id=$1
 	`
 
 	cmdTag, err := r.pool.Exec(ctx, query, messageId)
-
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}

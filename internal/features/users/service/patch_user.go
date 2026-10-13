@@ -19,7 +19,7 @@ func (s *UsersService) PatchUser(ctx context.Context, userId string, patch domai
 
 	patchedUser, err := s.usersRepository.PatchUser(ctx, userId, user)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("pathc user: %w", err)
+		return domain.User{}, fmt.Errorf("patch user: %w", err)
 	}
 
 	return patchedUser, err

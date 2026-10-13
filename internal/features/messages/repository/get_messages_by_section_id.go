@@ -15,10 +15,13 @@ func (r *MessagesRepository) GetMessagesBySectionId(ctx context.Context, section
 	var messageDomains []domain.Message
 
 	query := `
-	SELECT id, text, author_id, created_at, updated_at, section_id
+	SELECT id, text, author_id, created_at, updated_at, pinned_at, section_id
 	FROM messages
 	WHERE section_id = $1
-	ORDER BY updated_at ASC
+	ORDER BY 
+		(pinned_at IS NULL) ASC,  
+		pinned_at ASC,           
+		updated_at ASC;
 	`
 
 	rows, err := r.pool.Query(ctx, query, sectionId)
@@ -31,8 +34,8 @@ func (r *MessagesRepository) GetMessagesBySectionId(ctx context.Context, section
 	for rows.Next() {
 		var m domain.Message
 
-		if err := rows.Scan(&m.ID, &m.Text, &m.AuthorID, &m.CreatedAt, &m.UpdatedAt, &m.SectionID); err != nil {
-			return nil, fmt.Errorf("scan boadr row: %w", err)
+		if err := rows.Scan(&m.ID, &m.Text, &m.AuthorID, &m.CreatedAt, &m.UpdatedAt, &m.PinnedAt, &m.SectionID); err != nil {
+			return nil, fmt.Errorf("scan board row: %w", err)
 		}
 
 		messageDomains = append(messageDomains, m)

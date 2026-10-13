@@ -22,7 +22,7 @@ func (h *MessagesHandler) DeleteMessage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := h.messagesService.DeleteMessage(ctx, messageId); err != nil {
-		responseHandler.ErrorResponse(err, "")
+		responseHandler.ErrorResponse(err, "failed to delete message")
 		return
 	}
 

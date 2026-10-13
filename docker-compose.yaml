@@ -38,6 +38,9 @@ services:
       args:
         - SERVER_PATH=cmd/notification/main.go
     environment:
+
+      TG_TOKEN: ${TG_TOKEN}
+
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
@@ -71,7 +74,7 @@ services:
     container_name: db-migrate
     volumes:
       - ./migrations:/migrations
-    # - ${PROJECT_ROOT}/migrations:/migrations абсолютный путь если Make файл в другой дериктории  
+    # - ${PROJECT_ROOT}/migrations:/migrations
      
   retro-frontend:
     build: ../retrospective-app
