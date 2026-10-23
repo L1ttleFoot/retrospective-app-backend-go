@@ -16,12 +16,12 @@ type MessagesHandler struct {
 
 type MessagesService interface {
 	CreateMessage(ctx context.Context, message domain.Message) (domain.Message, error)
-	GetMessagesBySectionId(ctx context.Context, sectionId string) ([]domain.Message, error)
+	GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error)
 	PatchMessage(ctx context.Context, messageId string, messagePatch domain.MessagePatch) (domain.Message, error)
 	DeleteMessage(ctx context.Context, messageId string) error
 	PinMessage(ctx context.Context, messageId string) error
 	UnpinMessage(ctx context.Context, messageId string) error
-	SetReaction(ctx context.Context, reaction, messageId, authorId string) error
+	SetReaction(ctx context.Context, reactionName, messageId, authorId string) error
 }
 
 func NewMessagesTransport(
@@ -37,15 +37,16 @@ func NewMessagesTransport(
 func (h *MessagesHandler) Router() []core_server.Route {
 	return []core_server.Route{
 		{
-			Method:  http.MethodGet,
-			Path:    "/sections/{sectionId}/messages",
-			Handler: h.GetMessagesBySectionId,
+			Method:     http.MethodGet,
+			Path:       "/sections/{sectionId}/messages",
+			Handler:    h.GetMessagesBySectionId,
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, true)},
 		},
 		{
 			Method:     http.MethodPost,
 			Path:       "/messages",
 			Handler:    h.CreateMessage,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:  http.MethodDelete,
@@ -75,7 +76,7 @@ func (h *MessagesHandler) Router() []core_server.Route {
 			Method:     http.MethodPost,
 			Path:       "/messages/{id}/reaction",
 			Handler:    h.SetReaction,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 	}
 }

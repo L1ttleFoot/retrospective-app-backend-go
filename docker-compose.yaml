@@ -24,9 +24,14 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     depends_on:
-      - postgres_db
-      - redis_cache
-      - rabbitmq
+      redis_cache:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      postgres_db:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
     ports: 
       - "8080:8080"
       - "8081:8081"
@@ -51,6 +56,8 @@ services:
     image: postgres:17-alpine
     container_name: postgres_db
     restart: unless-stopped
+    ports:
+      - "6543:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -59,6 +66,11 @@ services:
     #  - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis_cache:
     image: redis:7.2-alpine
@@ -75,6 +87,13 @@ services:
     volumes:
       - ./migrations:/migrations
     # - ${PROJECT_ROOT}/migrations:/migrations
+    command: 
+      - "-path=/migrations"
+      - "-database=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable"
+      - "up"
+    depends_on:
+      postgres_db:
+        condition: service_healthy 
      
   retro-frontend:
     build: ../retrospective-app

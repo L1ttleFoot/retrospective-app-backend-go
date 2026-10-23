@@ -1,5 +1,7 @@
 FROM golang:1.25-alpine
 
+#FROM golang-clean-server-go-app:latest 
+
 ARG SERVER_PATH=cmd/server/main.go
 
 WORKDIR /app

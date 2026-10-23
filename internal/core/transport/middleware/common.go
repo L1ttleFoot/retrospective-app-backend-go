@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func Auth(tm core_service_tokens.TokenManager) Middleware {
+func Auth(tm core_service_tokens.TokenManager, isOptional bool) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -29,6 +29,12 @@ func Auth(tm core_service_tokens.TokenManager) Middleware {
 			responseHandler := core_response.NewResponseHandler(log, w)
 
 			if authHeader == "" {
+
+				if isOptional {
+					next.ServeHTTP(w, r)
+					return
+				}
+
 				responseHandler.ErrorResponse(core_errors.ErrForbidden, "missing token")
 				return
 			}
@@ -49,6 +55,35 @@ func Auth(tm core_service_tokens.TokenManager) Middleware {
 			ctx = core_service_tokens.WithClaims(ctx, claims)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func OptionalAuth(tm core_service_tokens.TokenManager) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			log := core_logger.FromContext(r.Context())
+			responseHandler := core_response.NewResponseHandler(log, w)
+
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				responseHandler.ErrorResponse(core_errors.ErrUnauthorized, "invalid token format")
+				return
+			}
+
+			claims, err := tm.Parse(parts[1], core_service_tokens.TypeAccess)
+			if err != nil {
+				responseHandler.ErrorResponse(core_errors.ErrUnauthorized, "token validate error")
+				return
+			}
+
+			next.ServeHTTP(w, r.WithContext(core_service_tokens.WithClaims(r.Context(), claims)))
 		})
 	}
 }

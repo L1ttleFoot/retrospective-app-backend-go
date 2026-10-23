@@ -51,7 +51,7 @@ func (h *MessagesHandler) CreateMessage(w http.ResponseWriter, r *http.Request) 
 		},
 	)
 	if err != nil {
-		responseHandler.ErrorResponse(err, "failed to create board")
+		responseHandler.ErrorResponse(err, "failed to create message")
 		return
 	}
 

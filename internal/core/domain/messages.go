@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type UserReaction struct {
+	Name       string
+	Char       string
+	Count      int
+	IsSelected bool
+}
+
 type Message struct {
 	ID        string
 	Text      string
@@ -14,6 +21,7 @@ type Message struct {
 	UpdatedAt time.Time
 	PinnedAt  *time.Time
 	SectionID string
+	Reactions []UserReaction
 }
 
 func NewMessage(

@@ -42,6 +42,12 @@ migrate-action:
 		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable \
 		"${action}"
 
+migrate-action-one:
+	@docker compose run --rm db-migrate \
+		-path /migrations \
+		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}?sslmode=disable \
+		"${action}" 1
+
 
 migrate-force:
 	@docker compose run --rm db-migrate \
@@ -61,5 +67,14 @@ migrate-up:
 migrate-down:
 	make migrate-action action=down
 
+migrate-up-one:
+	make migrate-action-one action=up
+
+migrate-down-one:
+	make migrate-action-one action=down
+
 test:
 	@go test ./...
+
+sqlc-gen:
+	@go tool sqlc generate

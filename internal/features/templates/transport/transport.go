@@ -36,19 +36,19 @@ func (h *TemplatesHandler) Router() []core_server.Route {
 			Method:     http.MethodGet,
 			Path:       "/templates",
 			Handler:    h.GetTemplates,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:     http.MethodPost,
 			Path:       "/templates",
 			Handler:    h.CreateTemplate,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:     http.MethodDelete,
 			Path:       "/templates/{id}",
 			Handler:    h.DeleteTemplate,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 	}
 }

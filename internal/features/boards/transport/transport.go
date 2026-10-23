@@ -41,19 +41,19 @@ func (h *BoardsHandler) Router() []core_server.Route {
 			Method:     http.MethodPost,
 			Path:       "/boards",
 			Handler:    h.CreateBoard,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:     http.MethodGet,
 			Path:       "/boards",
 			Handler:    h.GetBoardsByOwnerId,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:     http.MethodDelete,
 			Path:       "/boards/{id}",
 			Handler:    h.DeleteBoard,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 	}
 }

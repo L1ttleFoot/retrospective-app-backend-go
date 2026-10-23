@@ -5,9 +5,9 @@ import (
 	"fmt"
 )
 
-func (s *MessagesService) SetReaction(ctx context.Context, reaction, messageId, authorId string) error {
+func (s *MessagesService) SetReaction(ctx context.Context, reactionName, messageId, authorId string) error {
 
-	err := s.messagesRepository.SetReaction(ctx, reaction, messageId, authorId)
+	err := s.messagesRepository.SetReaction(ctx, reactionName, messageId, authorId)
 	if err != nil {
 		return fmt.Errorf("set reaction: %w", err)
 	}

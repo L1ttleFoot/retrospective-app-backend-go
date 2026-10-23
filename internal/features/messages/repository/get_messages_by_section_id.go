@@ -2,47 +2,37 @@ package messages_repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	db "golang-clean-server/db"
 	"golang-clean-server/internal/core/domain"
 	"time"
 )
 
-func (r *MessagesRepository) GetMessagesBySectionId(ctx context.Context, sectionId string) ([]domain.Message, error) {
+func (r *MessagesRepository) GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error) {
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
+	rows, err := r.q.GetMessagesBySectionID(ctx, db.GetMessagesBySectionIDParams{
+		UserID:    userId,
+		SectionID: sectionId,
+	})
+	if err != nil {
+		return []domain.Message{}, fmt.Errorf("get messages by section id: %w", err)
+	}
+
 	var messageDomains []domain.Message
 
-	query := `
-	SELECT id, text, author_id, created_at, updated_at, pinned_at, section_id
-	FROM messages
-	WHERE section_id = $1
-	ORDER BY 
-		(pinned_at IS NULL) ASC,  
-		pinned_at ASC,           
-		updated_at ASC;
-	`
-
-	rows, err := r.pool.Query(ctx, query, sectionId)
-
-	if err != nil {
-		return []domain.Message{}, fmt.Errorf("pool error: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var m domain.Message
-
-		if err := rows.Scan(&m.ID, &m.Text, &m.AuthorID, &m.CreatedAt, &m.UpdatedAt, &m.PinnedAt, &m.SectionID); err != nil {
-			return nil, fmt.Errorf("scan board row: %w", err)
+	for _, row := range rows {
+		var reactions []domain.UserReaction
+		if err := json.Unmarshal(row.Reactions, &reactions); err != nil {
+			return nil, fmt.Errorf("unmarshal reactions: %w", err)
 		}
 
+		m := domain.NewMessage(row.ID, row.Text, row.AuthorID, row.CreatedAt, row.UpdatedAt, row.PinnedAt, row.SectionID)
+		m.Reactions = reactions
 		messageDomains = append(messageDomains, m)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("next rows: %w", err)
 	}
 
 	return messageDomains, nil

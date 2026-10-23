@@ -9,7 +9,7 @@ import (
 )
 
 type SetReactionRequest struct {
-	Reaction string `json:"reaction"`
+	ReactionName string `json:"reaction"`
 }
 
 func (h *MessagesHandler) SetReaction(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +35,7 @@ func (h *MessagesHandler) SetReaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.messagesService.SetReaction(ctx, request.Reaction, messageId, claims.UserID)
+	err = h.messagesService.SetReaction(ctx, request.ReactionName, messageId, claims.UserID)
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to set reaction")
 		return

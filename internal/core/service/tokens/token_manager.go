@@ -37,3 +37,12 @@ func FromContext(ctx context.Context) *TokenClaims {
 
 	return claims
 }
+
+func FromContextOptional(ctx context.Context) *TokenClaims {
+	claims, ok := ctx.Value(claimsKey).(*TokenClaims)
+	if !ok {
+		return nil
+	}
+
+	return claims
+}

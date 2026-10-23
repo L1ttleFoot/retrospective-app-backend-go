@@ -30,7 +30,7 @@ func (m *mockMessagesRepository) CreateMessage(ctx context.Context, message doma
 	return message, nil
 }
 
-func (m *mockMessagesRepository) GetMessagesBySectionId(ctx context.Context, sectionId string) ([]domain.Message, error) {
+func (m *mockMessagesRepository) GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error) {
 	var result []domain.Message
 	for _, msg := range m.messages {
 		if msg.SectionID == sectionId {
@@ -127,7 +127,7 @@ func TestMessagesService_GetMessagesBySectionId(t *testing.T) {
 
 	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{})
 
-	result, err := service.GetMessagesBySectionId(context.Background(), "s1")
+	result, err := service.GetMessagesBySectionId(context.Background(), "s1", nil)
 
 	require.NoError(t, err)
 	require.Equal(t, 2, len(result))
