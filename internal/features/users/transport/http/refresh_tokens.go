@@ -8,9 +8,10 @@ import (
 )
 
 type RefreshTokensResponse struct {
-	ID          string `json:"id"`
-	Username    string `json:"username"`
-	AccessToken string `json:"token"`
+	ID          string   `json:"id"`
+	Username    string   `json:"username"`
+	Roles       []string `json:"roles"`
+	AccessToken string   `json:"token"`
 }
 
 func (h *UsersHandler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +47,7 @@ func (h *UsersHandler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 	response := RefreshTokensResponse{
 		ID:          userDomain.ID,
 		Username:    userDomain.Username,
+		Roles:       userDomain.Roles,
 		AccessToken: userDomain.AccessToken,
 	}
 

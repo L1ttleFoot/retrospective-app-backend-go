@@ -14,7 +14,8 @@ type Tokens struct {
 }
 
 type JwtClaims struct {
-	UserID string `json:"user_id"`
+	UserID string   `json:"user_id"`
+	Roles  []string `json:"roles,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -26,6 +27,7 @@ func (t *Tokens) Generate(claims TokenClaims, tokenType TokenType, ttl time.Dura
 
 	jwtClaims := JwtClaims{
 		UserID: claims.UserID,
+		Roles:  claims.Roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -74,5 +76,5 @@ func (t *Tokens) Parse(tokenString string, tokenType TokenType) (*TokenClaims, e
 		return nil, errors.New("invalid token")
 	}
 
-	return &TokenClaims{UserID: claims.UserID}, nil
+	return &TokenClaims{UserID: claims.UserID, Roles: claims.Roles}, nil
 }

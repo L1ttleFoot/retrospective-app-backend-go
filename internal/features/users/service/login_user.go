@@ -29,16 +29,19 @@ func (s *UsersService) LoginUser(ctx context.Context, user domain.User) (domain.
 		return domain.User{}, fmt.Errorf("incorrect user data: %w", err)
 	}
 
-	claims := core_service_tokens.TokenClaims{
+	accessClaims := core_service_tokens.TokenClaims{
 		UserID: domainUser.ID,
+		Roles:  domainUser.Roles,
 	}
 
-	accessToken, err := s.tokenManager.Generate(claims, core_service_tokens.TypeAccess, 15*time.Minute)
+	accessToken, err := s.tokenManager.Generate(accessClaims, core_service_tokens.TypeAccess, 15*time.Minute)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("generate token: %w", err)
 	}
 
-	refreshToken, err := s.tokenManager.Generate(claims, core_service_tokens.TypeRefresh, 15*24*time.Hour)
+	refreshClaims := core_service_tokens.TokenClaims{UserID: domainUser.ID}
+
+	refreshToken, err := s.tokenManager.Generate(refreshClaims, core_service_tokens.TypeRefresh, 15*24*time.Hour)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("generate token: %w", err)
 	}
@@ -49,6 +52,7 @@ func (s *UsersService) LoginUser(ctx context.Context, user domain.User) (domain.
 		"",
 		accessToken,
 		refreshToken,
+		domainUser.Roles,
 	)
 
 	return domainUser, nil

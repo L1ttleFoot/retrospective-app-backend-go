@@ -33,6 +33,7 @@ func (r *UsersRepository) PatchUser(ctx context.Context, userId string, user dom
 		"",
 		"",
 		"",
+		nil,
 	)
 
 	return userDomain, nil

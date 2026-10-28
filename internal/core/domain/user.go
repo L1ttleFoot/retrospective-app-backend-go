@@ -11,10 +11,25 @@ type User struct {
 	Password     string
 	AccessToken  string
 	RefreshToken string
+	Roles        []string
 }
 
-func NewUser(id string, username string, password string, accessToken string, refreshToken string) User {
-	return User{ID: id, Username: username, Password: password, AccessToken: accessToken, RefreshToken: refreshToken}
+func NewUser(
+	id string,
+	username string,
+	password string,
+	accessToken string,
+	refreshToken string,
+	roles []string,
+) User {
+	return User{
+		ID:           id,
+		Username:     username,
+		Password:     password,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		Roles:        roles,
+	}
 }
 
 func NewUserUninit(username string, password string) User {

@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS reactions (
 INSERT INTO reactions (name, char) VALUES
     ('thumbsUp', '👍'),
     ('thumbsDown', '👎'),
-    ('fire', '🔥');
+    ('fire', '🔥')
+    ON CONFLICT DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS messages_reactions (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -15,7 +15,7 @@ func (s *MessagesService) CreateMessage(ctx context.Context, message domain.Mess
 
 	message, err := s.messagesRepository.CreateMessage(ctx, message)
 	if err != nil {
-		return domain.Message{}, fmt.Errorf("create board: %w", err)
+		return domain.Message{}, fmt.Errorf("create message: %w", err)
 	}
 
 	s.rmqPublisher.PublishMessageCreated(ctx, core_rabbitmq.QueueMessageCreated, message)

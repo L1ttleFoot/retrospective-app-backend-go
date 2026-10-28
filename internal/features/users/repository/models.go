@@ -15,6 +15,7 @@ func (m UserModel) userModelToDomain() domain.User {
 		"",
 		"",
 		"",
+		nil,
 	)
 }
 
@@ -27,6 +28,7 @@ func userDomainsFromModels(users []UserModel) []domain.User {
 			"",
 			"",
 			"",
+			nil,
 		)
 	}
 

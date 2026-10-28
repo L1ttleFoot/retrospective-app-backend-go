@@ -9,8 +9,9 @@ import (
 )
 
 type GetUserResponse struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
+	ID       string   `json:"id"`
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
 }
 
 func (h *UsersHandler) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -39,5 +40,5 @@ func (h *UsersHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func dtoUserFromDomain(user domain.User) GetUserResponse {
-	return GetUserResponse{ID: user.ID, Username: user.Username}
+	return GetUserResponse{ID: user.ID, Username: user.Username, Roles: user.Roles}
 }

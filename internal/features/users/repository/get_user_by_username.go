@@ -13,16 +13,21 @@ func (r *UsersRepository) GetUserByUsername(ctx context.Context, username string
 	defer cancel()
 
 	query := `
-		SELECT id, password
-		FROM users
-		WHERE username=$1;
+		SELECT u.id, u.password,
+			COALESCE(array_agg(r.role ORDER BY r.role) FILTER (WHERE r.role IS NOT NULL), '{}') AS roles
+		FROM users u
+		LEFT JOIN user_roles ur ON ur.user_id = u.id
+		LEFT JOIN roles r ON r.id = ur.role_id
+		WHERE u.username = $1
+		GROUP BY u.id, u.password;
 	`
 
 	row := r.pool.QueryRow(ctx, query, username)
 
 	var userModel UserModel
+	var roles []string
 
-	if err := row.Scan(&userModel.ID, &userModel.Password); err != nil {
+	if err := row.Scan(&userModel.ID, &userModel.Password, &roles); err != nil {
 		return domain.User{}, fmt.Errorf("scan error: %w", err)
 	}
 
@@ -32,6 +37,7 @@ func (r *UsersRepository) GetUserByUsername(ctx context.Context, username string
 		userModel.Password,
 		"",
 		"",
+		roles,
 	)
 
 	return userDomain, nil

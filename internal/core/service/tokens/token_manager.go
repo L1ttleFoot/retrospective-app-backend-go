@@ -18,6 +18,7 @@ const (
 
 type TokenClaims struct {
 	UserID string
+	Roles  []string
 }
 
 type TokenManager interface {

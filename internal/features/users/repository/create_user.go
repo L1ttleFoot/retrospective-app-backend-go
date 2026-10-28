@@ -13,9 +13,18 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 	defer cancel()
 
 	query := `
-	INSERT INTO users (username, password)
-	VALUES ($1, $2)
-	RETURNING id;
+	WITH new_user AS (
+		INSERT INTO users (username, password)
+		VALUES ($1, $2)
+		RETURNING id
+	),
+	_ AS (
+		INSERT INTO user_roles (user_id, role_id)
+		SELECT new_user.id, roles.id
+		FROM new_user
+		JOIN roles ON roles.role = 'USER'
+	)
+	SELECT id FROM new_user;
 	`
 
 	row := r.pool.QueryRow(ctx, query, user.Username, user.Password)
@@ -32,6 +41,7 @@ func (r *UsersRepository) CreateUser(ctx context.Context, user domain.User) (dom
 		"",
 		"",
 		"",
+		[]string{"USER"},
 	)
 
 	return userDomain, nil

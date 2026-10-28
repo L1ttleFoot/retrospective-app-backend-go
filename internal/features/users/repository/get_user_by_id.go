@@ -17,16 +17,21 @@ func (r *UsersRepository) GetUser(ctx context.Context, userId string) (domain.Us
 	defer cancel()
 
 	query := `
-		SELECT username
-		FROM users
-		WHERE id=$1;
+		SELECT u.username,
+			COALESCE(array_agg(r.role ORDER BY r.role) FILTER (WHERE r.role IS NOT NULL), '{}') AS roles
+		FROM users u
+		LEFT JOIN user_roles ur ON ur.user_id = u.id
+		LEFT JOIN roles r ON r.id = ur.role_id
+		WHERE u.id = $1
+		GROUP BY u.id, u.username;
 	`
 
 	row := r.pool.QueryRow(ctx, query, userId)
 
 	var userModel UserModel
+	var roles []string
 
-	if err := row.Scan(&userModel.Username); err != nil {
+	if err := row.Scan(&userModel.Username, &roles); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.User{}, fmt.Errorf(
 				"user with id=%s: %w",
@@ -44,6 +49,7 @@ func (r *UsersRepository) GetUser(ctx context.Context, userId string) (domain.Us
 		"",
 		"",
 		"",
+		roles,
 	)
 
 	return userDomain, nil

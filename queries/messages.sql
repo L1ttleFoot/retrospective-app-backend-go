@@ -1,7 +1,7 @@
 -- name: CreateMessage :one
-INSERT INTO messages (text, author_id, section_id)
-VALUES (sqlc.arg(text), sqlc.arg(author_id), sqlc.arg(section_id))
-RETURNING id, text, author_id, created_at, updated_at, pinned_at, section_id;
+INSERT INTO messages (text, author_id, section_id, board_id)
+VALUES (sqlc.arg(text), sqlc.arg(author_id), sqlc.arg(section_id),sqlc.arg(board_id))
+RETURNING id, text, author_id, created_at, updated_at, pinned_at, section_id, board_id;
 
 -- name: SetReaction :exec
 WITH

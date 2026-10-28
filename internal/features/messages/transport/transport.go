@@ -52,7 +52,7 @@ func (h *MessagesHandler) Router() []core_server.Route {
 			Method:  http.MethodDelete,
 			Path:    "/messages/{id}",
 			Handler: h.DeleteMessage,
-			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:  http.MethodPatch,
@@ -64,13 +64,13 @@ func (h *MessagesHandler) Router() []core_server.Route {
 			Method:  http.MethodPost,
 			Path:    "/messages/{id}/pin",
 			Handler: h.PinMessage,
-			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:  http.MethodPost,
 			Path:    "/messages/{id}/unpin",
 			Handler: h.UnpinMessage,
-			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager)},
+			//Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
 		},
 		{
 			Method:     http.MethodPost,

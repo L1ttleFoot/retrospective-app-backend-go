@@ -3,6 +3,11 @@ CREATE TABLE IF NOT EXISTS roles (
     role TEXT NOT NULL UNIQUE
 );
 
+INSERT INTO roles (role) VALUES
+    ('ADMIN'),
+    ('USER')
+    ON CONFLICT (role) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS users (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username   TEXT NOT NULL UNIQUE,
