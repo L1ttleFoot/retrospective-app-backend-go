@@ -14,9 +14,10 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	ID          string `json:"id"`
-	Username    string `json:"username"`
-	AccessToken string `json:"token"`
+	ID          string   `json:"id"`
+	Username    string   `json:"username"`
+	AccessToken string   `json:"token"`
+	Roles       []string `json:"roles"`
 }
 
 func (h *UsersHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +55,7 @@ func (h *UsersHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	response := LoginUserResponse{
 		ID:          userDomain.ID,
 		Username:    userDomain.Username,
+		Roles:       userDomain.Roles,
 		AccessToken: userDomain.AccessToken,
 	}
 
