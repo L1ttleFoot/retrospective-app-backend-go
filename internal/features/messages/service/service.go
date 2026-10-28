@@ -8,16 +8,22 @@ import (
 type MessagesService struct {
 	messagesRepository MessagesRepository
 	rmqPublisher       MessageEventPublisher
+	eventBroadcaster   EventBroadcaster
 }
 
 type MessageEventPublisher interface {
 	PublishMessageCreated(ctx context.Context, queue string, msg domain.Message) error
 }
 
+type EventBroadcaster interface {
+	Publish(boardID, eventType string, payload any) error
+}
+
 type MessagesRepository interface {
 	CreateMessage(ctx context.Context, message domain.Message) (domain.Message, error)
 	GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error)
 	GetMessageById(ctx context.Context, messageId string) (domain.Message, error)
+	GetBoardIdBySectionId(ctx context.Context, sectionId string) (string, error)
 	PatchMessage(ctx context.Context, message domain.Message) (domain.Message, error)
 	DeleteMessage(ctx context.Context, messageId string) error
 	PinMessage(ctx context.Context, messageId string) error
@@ -28,9 +34,11 @@ type MessagesRepository interface {
 func NewMessagesService(
 	messagesRepository MessagesRepository,
 	rmqPublisher MessageEventPublisher,
+	eventBroadcaster EventBroadcaster,
 ) *MessagesService {
 	return &MessagesService{
 		messagesRepository: messagesRepository,
 		rmqPublisher:       rmqPublisher,
+		eventBroadcaster:   eventBroadcaster,
 	}
 }

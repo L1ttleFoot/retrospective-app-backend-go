@@ -1,45 +1,53 @@
 package core_sse
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 )
 
 type Broker struct {
-	notifier       chan []byte
-	newClients     chan chan []byte
-	closingClients chan chan []byte
-	clients        map[chan []byte]struct{}
+	notifier       chan Event
+	newClients     chan client
+	closingClients chan chan Event
+	clients        map[chan Event]string
 	mu             sync.Mutex
 }
 
-func NewBroker() *Broker {
-	b := &Broker{
-		notifier:       make(chan []byte, 1),
-		newClients:     make(chan chan []byte),
-		closingClients: make(chan chan []byte),
-		clients:        make(map[chan []byte]struct{}),
-	}
+type client struct {
+	ch      chan Event
+	boardID string
+}
 
-	return b
+func NewBroker() *Broker {
+	return &Broker{
+		notifier:       make(chan Event, 1),
+		newClients:     make(chan client),
+		closingClients: make(chan chan Event),
+		clients:        make(map[chan Event]string),
+	}
 }
 
 func (b *Broker) Listen() {
 	for {
 		select {
-		case client := <-b.newClients:
-			b.addClient(client)
+		case c := <-b.newClients:
+			b.addClient(c)
 			log.Println("Клиент подключился. Всего:", len(b.clients))
 
-		case client := <-b.closingClients:
-			b.removeClient(client)
+		case ch := <-b.closingClients:
+			b.removeClient(ch)
 			log.Println("Клиент отключился. Всего:", len(b.clients))
 
 		case event := <-b.notifier:
 			b.mu.Lock()
-			for clientChan := range b.clients {
+			for ch, boardID := range b.clients {
+				if boardID != event.BoardID {
+					continue
+				}
 				select {
-				case clientChan <- event:
+				case ch <- event:
 				default:
 					log.Println("Буфер клиента заполнен, сообщение пропущено")
 				}
@@ -49,13 +57,13 @@ func (b *Broker) Listen() {
 	}
 }
 
-func (b *Broker) addClient(ch chan []byte) {
+func (b *Broker) addClient(c client) {
 	b.mu.Lock()
-	b.clients[ch] = struct{}{}
+	b.clients[c.ch] = c.boardID
 	b.mu.Unlock()
 }
 
-func (b *Broker) removeClient(ch chan []byte) {
+func (b *Broker) removeClient(ch chan Event) {
 	b.mu.Lock()
 	if _, exists := b.clients[ch]; exists {
 		delete(b.clients, ch)
@@ -64,6 +72,12 @@ func (b *Broker) removeClient(ch chan []byte) {
 	b.mu.Unlock()
 }
 
-func (b *Broker) Publish(msg []byte) {
-	b.notifier <- msg
+func (b *Broker) Publish(boardID, eventType string, payload any) error {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("marshal event %s: %w", eventType, err)
+	}
+
+	b.notifier <- Event{BoardID: boardID, Type: eventType, Data: data}
+	return nil
 }

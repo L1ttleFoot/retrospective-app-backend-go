@@ -1,7 +1,6 @@
 package boards_transport
 
 import (
-	"encoding/json"
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
@@ -9,8 +8,6 @@ import (
 	core_response "golang-clean-server/internal/core/transport/response"
 	"net/http"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 type CreateBoardRequest struct {
@@ -52,13 +49,6 @@ func (h *BoardsHandler) CreateBoard(w http.ResponseWriter, r *http.Request) {
 		Title:     boardDomain.Title,
 		OwnerID:   boardDomain.OwnerID,
 		CreatedAt: boardDomain.CreatedAt,
-	}
-
-	if jsonBytes, err := json.Marshal(response); err == nil {
-		h.eventBroker.Publish(jsonBytes)
-		log.Debug("Событие о создании доски отправлено в Pub/Sub")
-	} else {
-		log.Error("Не удалось сериализовать событие для SSE", zap.Error(err))
 	}
 
 	responseHandler.JsonResponse(response, http.StatusCreated)

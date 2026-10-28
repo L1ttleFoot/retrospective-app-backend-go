@@ -7,7 +7,6 @@ import (
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
-	core_sse "golang-clean-server/internal/core/transport/SSE"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -106,11 +105,10 @@ func (m *mockTokenManager) Parse(token string, tokenType core_service_tokens.Tok
 func TestBoardsHandler_CreateBoard(t *testing.T) {
 	mockService := newMockBoardsService()
 	mockTokenManager := newMockTokenManager()
-	eventBroker := core_sse.NewBroker()
 
 	expectedBoard := domain.Board{ID: "123", Title: "Тестовая доска"}
 
-	handler := NewBoardsHandler(mockService, mockTokenManager, eventBroker)
+	handler := NewBoardsHandler(mockService, mockTokenManager)
 
 	mockService.On("CreateBoard", mock.Anything, mock.MatchedBy(func(b domain.Board) bool {
 		return b.Title == "Тестовая доска"

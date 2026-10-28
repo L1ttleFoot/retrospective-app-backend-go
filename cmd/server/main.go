@@ -78,9 +78,9 @@ func main() {
 	rmqPublisher := core_rabbitmq.NewEventPublisher(rmqConn.Connection, logger.Logger)
 
 	usersTransport := core_init_features.InitUsers(pool, hasher, tokenManager)
-	boardsTransport := core_init_features.InitBoards(pool, cache, tokenManager, eventBroker)
+	boardsTransport := core_init_features.InitBoards(pool, cache, tokenManager)
 	sectionsTransport := core_init_features.InitSections(pool)
-	messagesTransport := core_init_features.InitMessages(pool, tokenManager, rmqPublisher)
+	messagesTransport := core_init_features.InitMessages(pool, tokenManager, rmqPublisher, eventBroker)
 	templatesTransport := core_init_features.InitTemplates(pool, tokenManager)
 
 	prometheusTransport := prometheus_transport.NewPrometheusHandler()

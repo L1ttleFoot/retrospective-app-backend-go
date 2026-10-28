@@ -20,5 +20,7 @@ func (s *MessagesService) CreateMessage(ctx context.Context, message domain.Mess
 
 	s.rmqPublisher.PublishMessageCreated(ctx, core_rabbitmq.QueueMessageCreated, message)
 
+	s.publishMessageEvent(ctx, "message.created", messageEvent{SectionID: message.SectionID})
+
 	return message, nil
 }

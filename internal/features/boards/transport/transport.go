@@ -26,12 +26,10 @@ type BoardsService interface {
 func NewBoardsHandler(
 	boardsService BoardsService,
 	tokenManager core_service_tokens.TokenManager,
-	eventBroker *core_sse.Broker,
 ) *BoardsHandler {
 	return &BoardsHandler{
 		boardsService: boardsService,
 		tokenManager:  tokenManager,
-		eventBroker:   eventBroker,
 	}
 }
 

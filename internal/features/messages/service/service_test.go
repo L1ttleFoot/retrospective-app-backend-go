@@ -6,13 +6,15 @@ import (
 	"testing"
 	"time"
 
+	core_errors "golang-clean-server/internal/core/errors"
 	"golang-clean-server/internal/core/domain"
 
 	"github.com/stretchr/testify/require"
 )
 
 type mockMessagesRepository struct {
-	messages map[string]domain.Message
+	messages       map[string]domain.Message
+	boardBySection map[string]string
 }
 
 func newMockMessagesRepository() *mockMessagesRepository {
@@ -48,6 +50,13 @@ func (m *mockMessagesRepository) GetMessageById(ctx context.Context, messageId s
 	return msg, nil
 }
 
+func (m *mockMessagesRepository) GetBoardIdBySectionId(ctx context.Context, sectionId string) (string, error) {
+	if board, ok := m.boardBySection[sectionId]; ok {
+		return board, nil
+	}
+	return "board-1", nil
+}
+
 func (m *mockMessagesRepository) PatchMessage(ctx context.Context, message domain.Message) (domain.Message, error) {
 	m.messages[message.ID] = message
 	return message, nil
@@ -79,6 +88,12 @@ func (m *mockMessageEventPublisher) PublishMessageCreated(ctx context.Context, q
 	return nil
 }
 
+type mockEventBroadcaster struct{}
+
+func (m *mockEventBroadcaster) Publish(boardID, eventType string, payload any) error {
+	return nil
+}
+
 func timeNow() time.Time {
 	return time.Now()
 }
@@ -98,7 +113,7 @@ func TestMessagesService_CreateMessage(t *testing.T) {
 		"section-1",
 	)
 
-	service := NewMessagesService(&mockMessagesRepository{}, &mockMessageEventPublisher{})
+	service := NewMessagesService(&mockMessagesRepository{}, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
 
 	result, err := service.CreateMessage(context.Background(), msg)
 
@@ -112,7 +127,7 @@ func TestMessagesService_CreateMessage_ValidationError(t *testing.T) {
 		Text: "",
 	}
 
-	service := NewMessagesService(&mockMessagesRepository{}, &mockMessageEventPublisher{})
+	service := NewMessagesService(&mockMessagesRepository{}, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
 
 	_, err := service.CreateMessage(context.Background(), invalidMsg)
 
@@ -125,7 +140,7 @@ func TestMessagesService_GetMessagesBySectionId(t *testing.T) {
 	mockRepo.messages["2"] = domain.NewMessage("2", "msg2", "a1", timeNow(), timeNow(), nil, "s1")
 	mockRepo.messages["3"] = domain.NewMessage("3", "msg3", "a1", timeNow(), timeNow(), nil, "s2")
 
-	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{})
+	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
 
 	result, err := service.GetMessagesBySectionId(context.Background(), "s1", nil)
 
@@ -164,7 +179,7 @@ func TestMessagesService_PatchMessage(t *testing.T) {
 	)
 	mockRepo.messages["1"] = updated
 
-	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{})
+	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
 
 	result, err := service.PatchMessage(context.Background(), "1", patch)
 
@@ -173,11 +188,26 @@ func TestMessagesService_PatchMessage(t *testing.T) {
 	require.Equal(t, "updated text", result.Text)
 }
 
+func TestMessagesService_PatchMessage_MoveAcrossBoardsRejected(t *testing.T) {
+	mockRepo := newMockMessagesRepository()
+	mockRepo.boardBySection = map[string]string{"s1": "board-1", "s2": "board-2"}
+	mockRepo.messages["1"] = domain.NewMessage("1", "text", "a1", timeNow(), timeNow(), nil, "s1")
+
+	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
+
+	patch := domain.MessagePatch{SectionID: nullableString("s2")}
+
+	_, err := service.PatchMessage(context.Background(), "1", patch)
+
+	require.ErrorIs(t, err, core_errors.ErrInvalidArgument)
+	require.Equal(t, "s1", mockRepo.messages["1"].SectionID)
+}
+
 func TestMessagesService_DeleteMessage(t *testing.T) {
 	mockRepo := newMockMessagesRepository()
 	mockRepo.messages["1"] = domain.NewMessage("1", "text", "a1", timeNow(), timeNow(), nil, "s1")
 
-	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{})
+	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
 
 	err := service.DeleteMessage(context.Background(), "1")
 
