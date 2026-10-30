@@ -13,6 +13,7 @@ type BoardsRepository interface {
 	CreateBoard(ctx context.Context, board domain.Board) (domain.Board, error)
 	GetBoardsByOwnerId(ctx context.Context, ownerId string) ([]domain.Board, error)
 	DeleteBoard(ctx context.Context, boardId string) error
+	GetBoardOwnerId(ctx context.Context, boardId string) (string, error)
 }
 
 func NewBoardsService(

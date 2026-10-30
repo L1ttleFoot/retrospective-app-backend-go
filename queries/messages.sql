@@ -1,7 +1,7 @@
 -- name: CreateMessage :one
-INSERT INTO messages (text, author_id, section_id, board_id)
-VALUES (sqlc.arg(text), sqlc.arg(author_id), sqlc.arg(section_id),sqlc.arg(board_id))
-RETURNING id, text, author_id, created_at, updated_at, pinned_at, section_id, board_id;
+INSERT INTO messages (text, author_id, section_id)
+VALUES (sqlc.arg(text), sqlc.arg(author_id), sqlc.arg(section_id))
+RETURNING id, text, author_id, created_at, updated_at, pinned_at, section_id;
 
 -- name: SetReaction :exec
 WITH
@@ -37,13 +37,14 @@ SELECT
                     'char', sub.char,
                     'count', sub.cnt,
                     'isSelected', sub.is_selected
-                ) ORDER BY sub.cnt DESC, sub.name ASC
+                ) ORDER BY sub.cnt DESC, sub.max_cr_at ASC
             )
             FROM (
                 SELECT
                     r.name,
                     r.char,
                     COUNT(*) AS cnt,
+					MAX(mr.created_at) as max_cr_at,
                     COALESCE(BOOL_OR(mr.author_id = sqlc.narg(user_id)::uuid), false) AS is_selected
                 FROM messages_reactions mr
                 JOIN reactions r ON mr.reaction_id = r.id

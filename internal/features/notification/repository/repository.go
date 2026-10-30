@@ -8,12 +8,14 @@ import (
 
 type NotificationRepository struct {
 	token  string
+	chatID int64
 	client *http.Client
 }
 
 func NewNotificationRepository(cfg core_telegram.Config) *NotificationRepository {
 	return &NotificationRepository{
 		token:  cfg.Token,
+		chatID: cfg.ChatID,
 		client: &http.Client{Timeout: 10 * time.Second},
 	}
 }

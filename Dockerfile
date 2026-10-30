@@ -1,7 +1,5 @@
 FROM golang:1.25-alpine
 
-# FROM golang-clean-server-go-app:latest 
-
 ARG SERVER_PATH=cmd/server/main.go
 
 WORKDIR /app
@@ -12,7 +10,6 @@ RUN go mod download
 
 COPY . .
 
-# RUN go mod tidy
-RUN go build -o /app/exe ${SERVER_PATH}
+RUN go build -trimpath -ldflags="-s -w" -o /app/exe ${SERVER_PATH}
 
 CMD ["/app/exe"]

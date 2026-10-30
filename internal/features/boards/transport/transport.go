@@ -4,7 +4,6 @@ import (
 	"context"
 	"golang-clean-server/internal/core/domain"
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
-	core_sse "golang-clean-server/internal/core/transport/SSE"
 	core_middleware "golang-clean-server/internal/core/transport/middleware"
 	core_server "golang-clean-server/internal/core/transport/server"
 
@@ -14,13 +13,12 @@ import (
 type BoardsHandler struct {
 	boardsService BoardsService
 	tokenManager  core_service_tokens.TokenManager
-	eventBroker   *core_sse.Broker
 }
 
 type BoardsService interface {
 	CreateBoard(ctx context.Context, board domain.Board) (domain.Board, error)
 	GetBoardsByOwnerId(ctx context.Context, ownerId string) ([]domain.Board, error)
-	DeleteBoard(ctx context.Context, boardId string) error
+	DeleteBoard(ctx context.Context, boardId string, userId string) error
 }
 
 func NewBoardsHandler(

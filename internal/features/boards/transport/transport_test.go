@@ -40,9 +40,9 @@ func (s *mockBoardsService) CreateBoard(ctx context.Context, board domain.Board)
 	return res, err
 }
 
-func (s *mockBoardsService) DeleteBoard(ctx context.Context, boardId string) error {
+func (s *mockBoardsService) DeleteBoard(ctx context.Context, boardId string, userId string) error {
 
-	args := s.Called(ctx, boardId)
+	args := s.Called(ctx, boardId, userId)
 
 	err := args.Error(0)
 

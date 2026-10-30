@@ -45,6 +45,7 @@ services:
     environment:
 
       TG_TOKEN: ${TG_TOKEN}
+      TG_CHAT_ID: ${TG_CHAT_ID}
 
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       RABBITMQ_USER: ${RABBITMQ_USER}

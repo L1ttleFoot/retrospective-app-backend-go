@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"golang-clean-server/internal/core/domain"
+	core_errors "golang-clean-server/internal/core/errors"
 	"time"
 )
 
@@ -38,6 +39,10 @@ func (r *SectionsRepository) GetSections(ctx context.Context, boardId string) ([
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("next rows: %w", err)
+	}
+
+	if len(domainSections) == 0 {
+		return nil, fmt.Errorf("sections from board with id %s not found: %w", boardId, core_errors.ErrNotFound)
 	}
 
 	return domainSections, nil

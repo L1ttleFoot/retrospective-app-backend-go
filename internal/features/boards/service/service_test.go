@@ -3,6 +3,7 @@ package boards_service
 import (
 	"context"
 	"golang-clean-server/internal/core/domain"
+	core_errors "golang-clean-server/internal/core/errors"
 	"testing"
 	"time"
 
@@ -42,6 +43,14 @@ func (b *mockBoardsRepository) DeleteBoard(ctx context.Context, boardId string) 
 	return nil
 }
 
+func (b *mockBoardsRepository) GetBoardOwnerId(ctx context.Context, boardId string) (string, error) {
+	board, ok := b.boards[boardId]
+	if !ok {
+		return "", core_errors.ErrNotFound
+	}
+	return board.OwnerID, nil
+}
+
 func timeNow() time.Time {
 	return time.Now()
 }
@@ -66,6 +75,38 @@ func TestBoardsService_CreateBoard_ValidationError(t *testing.T) {
 	_, err := service.CreateBoard(context.Background(), invalidBoard)
 
 	require.Error(t, err)
+}
+
+func TestBoardsService_DeleteBoard_Owner(t *testing.T) {
+	mockRepo := newMockBoardsRepository()
+	mockRepo.boards["1"] = domain.NewBoard("1", "title", "owner-1", timeNow())
+
+	service := NewBoardsService(mockRepo)
+
+	err := service.DeleteBoard(context.Background(), "1", "owner-1")
+
+	require.NoError(t, err)
+	require.NotContains(t, mockRepo.boards, "1")
+}
+
+func TestBoardsService_DeleteBoard_NotOwner(t *testing.T) {
+	mockRepo := newMockBoardsRepository()
+	mockRepo.boards["1"] = domain.NewBoard("1", "title", "owner-1", timeNow())
+
+	service := NewBoardsService(mockRepo)
+
+	err := service.DeleteBoard(context.Background(), "1", "intruder")
+
+	require.ErrorIs(t, err, core_errors.ErrForbidden)
+	require.Contains(t, mockRepo.boards, "1")
+}
+
+func TestBoardsService_DeleteBoard_NotFound(t *testing.T) {
+	service := NewBoardsService(newMockBoardsRepository())
+
+	err := service.DeleteBoard(context.Background(), "missing", "owner-1")
+
+	require.ErrorIs(t, err, core_errors.ErrNotFound)
 }
 
 func TestBoardsService_GetBoardsByOwnderId(t *testing.T) {

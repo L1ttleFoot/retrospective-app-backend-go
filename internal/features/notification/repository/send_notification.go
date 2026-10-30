@@ -21,7 +21,7 @@ type SendNotificationResponse struct {
 func (r *NotificationRepository) SendNotification(text string) error {
 
 	requestBody := SendNotificationRequest{
-		ChatID: 368161962,
+		ChatID: r.chatID,
 		Text:   text,
 	}
 
@@ -55,8 +55,6 @@ func (r *NotificationRepository) SendNotification(text string) error {
 	if err := json.NewDecoder(resp.Body).Decode(&notificationResponse); err != nil {
 		return fmt.Errorf("decode telegram response: %w", err)
 	}
-
-	fmt.Println(notificationResponse, resp.StatusCode != http.StatusOK || !notificationResponse.OK)
 
 	if resp.StatusCode != http.StatusOK || !notificationResponse.OK {
 		return fmt.Errorf(

@@ -64,13 +64,14 @@ SELECT
                     'char', sub.char,
                     'count', sub.cnt,
                     'isSelected', sub.is_selected
-                ) ORDER BY sub.cnt DESC, sub.name ASC
+                ) ORDER BY sub.cnt DESC, sub.max_cr_at ASC
             )
             FROM (
                 SELECT
                     r.name,
                     r.char,
                     COUNT(*) AS cnt,
+					MAX(mr.created_at) as max_cr_at,
                     COALESCE(BOOL_OR(mr.author_id = $1::uuid), false) AS is_selected
                 FROM messages_reactions mr
                 JOIN reactions r ON mr.reaction_id = r.id

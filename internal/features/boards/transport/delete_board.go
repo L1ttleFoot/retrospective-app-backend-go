@@ -2,6 +2,7 @@ package boards_transport
 
 import (
 	core_logger "golang-clean-server/internal/core/logger"
+	core_service_tokens "golang-clean-server/internal/core/service/tokens"
 	core_request "golang-clean-server/internal/core/transport/request"
 	core_response "golang-clean-server/internal/core/transport/response"
 	"net/http"
@@ -20,7 +21,9 @@ func (h *BoardsHandler) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.boardsService.DeleteBoard(ctx, boardId); err != nil {
+	claims := core_service_tokens.FromContext(ctx)
+
+	if err := h.boardsService.DeleteBoard(ctx, boardId, claims.UserID); err != nil {
 		responseHandler.ErrorResponse(err, "failed to delete board")
 		return
 	}

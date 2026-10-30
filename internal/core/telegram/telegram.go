@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	Token string `envconfig:"TG_TOKEN" required:"true"`
+	Token  string `envconfig:"TG_TOKEN" required:"true"`
+	ChatID int64  `envconfig:"TG_CHAT_ID" required:"true"`
 }
 
 func NewConfig() (Config, error) {
