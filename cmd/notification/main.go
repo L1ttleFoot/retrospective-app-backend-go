@@ -61,7 +61,9 @@ func main() {
 		core_rabbitmq.QueueMessageCreated,
 		func(body []byte) error {
 
-			notificationHandler.SendNotification(body)
+			if err := notificationHandler.SendNotification(body); err != nil {
+				logger.Error("telegram send failed", zap.Error(err))
+			}
 
 			return nil
 		},
