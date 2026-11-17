@@ -12,11 +12,11 @@ run2:
 up:
 	@docker compose up -d --build
 
-up-go:
-	@docker compose up -d --build go-app
+up-back:
+	@docker compose up -d --build --no-deps go-app notification-app
 
-up-react:
-	@docker compose up -d --build retro-frontend
+up-front:
+	@docker compose up -d --build --no-deps retro-frontend
 
 down:
 	@docker compose down
@@ -78,3 +78,6 @@ test:
 
 sqlc-gen:
 	@go tool sqlc generate
+
+
+

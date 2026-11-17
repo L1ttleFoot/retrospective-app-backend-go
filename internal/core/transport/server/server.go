@@ -28,12 +28,13 @@ func NewServer(config Config, log *core_logger.Logger, middleware ...core_middle
 	}
 }
 
-func (s *Server) RegisterApiRouters(routers ...*ApiRouter) {
-	for _, router := range routers {
-
-		prefix := "/api"
-
-		s.mux.Handle(prefix+"/", http.StripPrefix(prefix, router.WithMiddleware()))
+func (s *Server) RegisterGroups(groups ...RouteGroup) {
+	for _, group := range groups {
+		for _, route := range group.Routes {
+			pattern := fmt.Sprintf("%s %s%s", route.Method, group.Prefix, route.Path)
+			handler := core_middleware.ChainMiddleware(route.WithMiddleware(), group.Middleware...)
+			s.mux.Handle(pattern, handler)
+		}
 	}
 }
 

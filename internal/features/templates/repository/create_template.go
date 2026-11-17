@@ -19,7 +19,6 @@ func (r *TemplatesRepository) CreateTemplate(ctx context.Context, template domai
 	VALUES ($1,$2)
 	RETURNING id, created_at
 	`
-	fmt.Println(query)
 
 	row := r.pool.QueryRow(ctx, query, template.Title, template.AuthorID)
 

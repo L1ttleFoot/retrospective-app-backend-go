@@ -1,4 +1,4 @@
-package users_transport_http
+package users_transport
 
 import (
 	core_logger "golang-clean-server/internal/core/logger"

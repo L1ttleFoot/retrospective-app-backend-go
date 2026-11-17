@@ -39,14 +39,13 @@ func Auth(tm core_service_tokens.TokenManager, isOptional bool) Middleware {
 				return
 			}
 
-			parts := strings.Split(authHeader, " ")
-
-			if len(parts) != 2 || parts[0] != "Bearer" {
+			token, ok := strings.CutPrefix(authHeader, "Bearer ")
+			if !ok {
 				responseHandler.ErrorResponse(core_errors.ErrForbidden, "invalid token format")
 				return
 			}
 
-			claims, err := tm.Parse(parts[1], core_service_tokens.TypeAccess)
+			claims, err := tm.Parse(token, core_service_tokens.TypeAccess)
 			if err != nil {
 				responseHandler.ErrorResponse(core_errors.ErrUnauthorized, fmt.Errorf("token validate error: %w", err).Error())
 				return

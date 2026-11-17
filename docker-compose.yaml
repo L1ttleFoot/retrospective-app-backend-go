@@ -1,7 +1,8 @@
 services:
   go-app:
-    container_name: backend
     build: .
+    container_name: backend
+    restart: unless-stopped
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -35,9 +36,11 @@ services:
     ports: 
       - "8080:8080"
       - "8081:8081"
+      - "127.0.0.1:6060:6060"
 
   notification-app:
     container_name: notifications
+    restart: unless-stopped
     build:
       context: .
       args:
@@ -99,6 +102,7 @@ services:
   retro-frontend:
     build: ../retrospective-app
     container_name: frontend
+    restart: unless-stopped
     ports: 
       - "3000:80"
     depends_on:

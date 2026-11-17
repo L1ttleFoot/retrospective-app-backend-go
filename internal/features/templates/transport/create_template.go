@@ -1,7 +1,6 @@
 package templates_transport
 
 import (
-	"fmt"
 	"golang-clean-server/internal/core/domain"
 	core_logger "golang-clean-server/internal/core/logger"
 	core_service_tokens "golang-clean-server/internal/core/service/tokens"
@@ -62,8 +61,6 @@ func (h *TemplatesHandler) CreateTemplate(w http.ResponseWriter, r *http.Request
 
 		domainTemplates.Sections = append(domainTemplates.Sections, newTemplateSection)
 	}
-
-	fmt.Println(domainTemplates)
 
 	domainTemplates, err := h.templatesService.CreateTemplate(ctx, domainTemplates)
 	if err != nil {

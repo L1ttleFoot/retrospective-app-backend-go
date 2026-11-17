@@ -10,7 +10,10 @@ import (
 	repository_pool "golang-clean-server/internal/core/repository/pool"
 	core_service_hasher "golang-clean-server/internal/core/service/hasher"
 	core_service_token "golang-clean-server/internal/core/service/tokens"
+	"golang-clean-server/internal/features/healthcheck"
 	prometheus_transport "golang-clean-server/internal/features/prometheus/transport"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"time"
 
@@ -23,9 +26,6 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
-
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 var timeZone = time.UTC
@@ -96,19 +96,31 @@ func main() {
 		core_middleware.Metrics(),
 	)
 
-	apiRouter := core_server.NewApiRouter()
+	httpServer.RegisterGroups(
+		core_server.RouteGroup{
+			Prefix: "/api",
+			Routes: core_server.RoutesMerge(
+				usersTransport.Routes(),
+				boardsTransport.Router(),
+				sectionsTransport.Routes(),
+				messagesTransport.Router(),
+				templatesTransport.Router(),
+				eventBroker.Routes(),
+				prometheusTransport.Routes(),
+			),
+		},
+		core_server.RouteGroup{
+			Prefix: "",
+			Routes: healthcheck.Routes(),
+		},
+	)
 
-	apiRouter.RegisterRoutes(core_server.RoutesMerge(
-		usersTransport.Routes(),
-		boardsTransport.Router(),
-		sectionsTransport.Routes(),
-		messagesTransport.Router(),
-		templatesTransport.Router(),
-		eventBroker.Routes(),
-		prometheusTransport.Routes(),
-	)...)
-
-	httpServer.RegisterApiRouters(apiRouter)
+	go func() {
+		logger.Info("pprof listening", zap.String("addr", "0.0.0.0:6060"))
+		if err := http.ListenAndServe("0.0.0.0:6060", nil); err != nil {
+			logger.Error("pprof server error", zap.Error(err))
+		}
+	}()
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("http server run error", zap.Error(err))
