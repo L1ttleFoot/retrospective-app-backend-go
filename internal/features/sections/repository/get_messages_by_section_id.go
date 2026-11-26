@@ -1,4 +1,4 @@
-package messages_repository
+package sections_repository
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func (r *MessagesRepository) GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error) {
+func (r *SectionsRepository) GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error) {
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()

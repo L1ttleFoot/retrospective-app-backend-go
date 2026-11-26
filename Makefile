@@ -79,5 +79,23 @@ test:
 sqlc-gen:
 	@go tool sqlc generate
 
+KAFKA_CONTAINER ?= kafka
+TOPIC ?= board-events
 
+.PHONY: kafka-read
 
+kafka-read:
+	@echo Reading from Kafka
+	@docker exec -it $(KAFKA_CONTAINER) /opt/kafka/bin/kafka-console-consumer.sh \
+		--bootstrap-server localhost:9092 \
+		--topic $(TOPIC) \
+		--from-beginning \
+		--property print.key=true \
+		--property print.partition=true \
+		--property print.offset=true
+
+kafka-topics:
+	@echo Listing Kafka topics
+	@docker exec -it $(KAFKA_CONTAINER) /opt/kafka/bin/kafka-topics.sh \
+		--bootstrap-server localhost:9092 \
+		--list

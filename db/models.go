@@ -34,6 +34,16 @@ type MessagesReaction struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
+type Outbox struct {
+	ID          int32      `json:"id"`
+	EventID     string     `json:"event_id"`
+	Topic       string     `json:"topic"`
+	Key         string     `json:"key"`
+	Payload     []byte     `json:"payload"`
+	CreatedAt   time.Time  `json:"created_at"`
+	PublishedAt *time.Time `json:"published_at"`
+}
+
 type Reaction struct {
 	ID   int32  `json:"id"`
 	Name string `json:"name"`

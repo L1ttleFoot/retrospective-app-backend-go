@@ -10,12 +10,14 @@ import (
 )
 
 type mockServiceRepository struct {
+	messages map[string]domain.Message
 	sections map[string]domain.Section
 }
 
 func newMockBoardsRepository() *mockServiceRepository {
 	return &mockServiceRepository{
 		sections: make(map[string]domain.Section),
+		messages: make(map[string]domain.Message),
 	}
 }
 
@@ -31,18 +33,14 @@ func (r *mockServiceRepository) CreateSections(ctx context.Context, sections []d
 	return sections, nil
 }
 
-func (r *mockServiceRepository) GetSections(ctx context.Context, boardId string) ([]domain.Section, error) {
-
-	var result []domain.Section
-
-	for _, s := range r.sections {
-		if s.BoardID == boardId {
-			result = append(result, s)
+func (m *mockServiceRepository) GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error) {
+	var result []domain.Message
+	for _, msg := range m.messages {
+		if msg.SectionID == sectionId {
+			result = append(result, msg)
 		}
 	}
-
 	return result, nil
-
 }
 
 func timeNow() time.Time {
@@ -69,19 +67,18 @@ func TestSectionsService_CreateSections(t *testing.T) {
 	require.Len(t, mockRepo.sections, 3)
 }
 
-func TestSectionsService_GetSections(t *testing.T) {
+func TestSectionsService_GetMessagesBySectionId(t *testing.T) {
 	mockRepo := newMockBoardsRepository()
-
-	mockRepo.sections["1"] = domain.NewSection("1", "test-title-1", "red", "1", timeNow())
-	mockRepo.sections["2"] = domain.NewSection("2", "test-title-2", "green", "1", timeNow())
-	mockRepo.sections["3"] = domain.NewSection("1", "test-title-1", "blue", "2", timeNow())
+	mockRepo.messages["1"] = domain.NewMessage("1", "msg1", "a1", timeNow(), timeNow(), nil, "s1")
+	mockRepo.messages["2"] = domain.NewMessage("2", "msg2", "a1", timeNow(), timeNow(), nil, "s1")
+	mockRepo.messages["3"] = domain.NewMessage("3", "msg3", "a1", timeNow(), timeNow(), nil, "s2")
 
 	service := NewSectionsService(mockRepo)
 
-	result, err := service.GetSections(context.Background(), "1")
+	result, err := service.GetMessagesBySectionId(context.Background(), "s1", nil)
 
 	require.NoError(t, err)
 	require.Equal(t, 2, len(result))
-	require.Contains(t, []string{"test-title-1", "test-title-2"}, result[0].Title)
-	require.Contains(t, []string{"test-title-1", "test-title-2"}, result[1].Title)
+	require.Contains(t, []string{"msg1", "msg2"}, result[0].Text)
+	require.Contains(t, []string{"msg1", "msg2"}, result[1].Text)
 }

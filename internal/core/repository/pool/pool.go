@@ -15,6 +15,8 @@ type Pool interface {
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 
 	SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
+
+	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
 type ConnectionPool struct {

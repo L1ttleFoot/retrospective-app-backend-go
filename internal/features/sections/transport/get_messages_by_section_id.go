@@ -1,4 +1,4 @@
-package messages_transport
+package sections_transport
 
 import (
 	core_logger "golang-clean-server/internal/core/logger"
@@ -31,7 +31,7 @@ type GetMessagesBySectionIdResponse struct {
 	Messages []MessagesResponse `json:"messages" validate:"required"`
 }
 
-func (h *MessagesHandler) GetMessagesBySectionId(w http.ResponseWriter, r *http.Request) {
+func (h *SectionsHandler) GetMessagesBySectionId(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
@@ -50,7 +50,7 @@ func (h *MessagesHandler) GetMessagesBySectionId(w http.ResponseWriter, r *http.
 		userId = &claims.UserID
 	}
 
-	messageDomains, err := h.messagesService.GetMessagesBySectionId(ctx, sectionId, userId)
+	messageDomains, err := h.sectionsService.GetMessagesBySectionId(ctx, sectionId, userId)
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to get messages list")
 		return

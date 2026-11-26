@@ -19,6 +19,7 @@ type BoardsService interface {
 	CreateBoard(ctx context.Context, board domain.Board) (domain.Board, error)
 	GetBoardsByOwnerId(ctx context.Context, ownerId string) ([]domain.Board, error)
 	DeleteBoard(ctx context.Context, boardId string, userId string) error
+	GetSections(ctx context.Context, boardId string) (string, []domain.Section, error)
 }
 
 func NewBoardsHandler(
@@ -50,6 +51,11 @@ func (h *BoardsHandler) Router() []core_server.Route {
 			Path:       "/boards/{id}",
 			Handler:    h.DeleteBoard,
 			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, false)},
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/boards/{id}/sections",
+			Handler: h.GetSections,
 		},
 	}
 }

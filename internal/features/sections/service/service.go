@@ -11,7 +11,7 @@ type SectionsService struct {
 
 type SectionsRepository interface {
 	CreateSections(ctx context.Context, sections []domain.Section) ([]domain.Section, error)
-	GetSections(ctx context.Context, boardId string) ([]domain.Section, error)
+	GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error)
 }
 
 func NewSectionsService(sectionsRepository SectionsRepository) *SectionsService {

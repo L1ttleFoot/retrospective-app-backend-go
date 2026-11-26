@@ -1,4 +1,4 @@
-package sections_transport
+package boards_transport
 
 import (
 	core_logger "golang-clean-server/internal/core/logger"
@@ -7,11 +7,19 @@ import (
 	"net/http"
 )
 
-type GetSectionsResponse struct {
-	Sections []SectionsItemResponse `json:"sections"`
+type SectionsItemResponse struct {
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Color   string `json:"color"`
+	BoardID string `json:"boardId"`
 }
 
-func (h *SectionsHandler) GetSections(w http.ResponseWriter, r *http.Request) {
+type GetSectionsResponse struct {
+	BoardTitle string                 `json:"boardTitle"`
+	Sections   []SectionsItemResponse `json:"sections"`
+}
+
+func (h *BoardsHandler) GetSections(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	log := core_logger.FromContext(ctx)
@@ -24,7 +32,7 @@ func (h *SectionsHandler) GetSections(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sectionDomains, err := h.sectionsService.GetSections(ctx, id)
+	boardTitle, sectionDomains, err := h.boardsService.GetSections(ctx, id)
 	if err != nil {
 		responseHandler.ErrorResponse(err, "failed to get sections")
 		return
@@ -42,7 +50,8 @@ func (h *SectionsHandler) GetSections(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := GetSectionsResponse{
-		Sections: responseSections,
+		BoardTitle: boardTitle,
+		Sections:   responseSections,
 	}
 
 	responseHandler.JsonResponse(response, http.StatusOK)

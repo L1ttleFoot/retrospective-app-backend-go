@@ -1,14 +1,13 @@
-package sections_repository
+package boards_repository
 
 import (
 	"context"
 	"fmt"
 	"golang-clean-server/internal/core/domain"
-	core_errors "golang-clean-server/internal/core/errors"
 	"time"
 )
 
-func (r *SectionsRepository) GetSections(ctx context.Context, boardId string) ([]domain.Section, error) {
+func (r *BoardsRepository) GetSections(ctx context.Context, boardId string) ([]domain.Section, error) {
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -25,7 +24,7 @@ func (r *SectionsRepository) GetSections(ctx context.Context, boardId string) ([
 	}
 	defer rows.Close()
 
-	var domainSections []domain.Section
+	domainSections := make([]domain.Section, 0)
 
 	for rows.Next() {
 		var s domain.Section
@@ -39,10 +38,6 @@ func (r *SectionsRepository) GetSections(ctx context.Context, boardId string) ([
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("next rows: %w", err)
-	}
-
-	if len(domainSections) == 0 {
-		return nil, fmt.Errorf("sections from board with id %s not found: %w", boardId, core_errors.ErrNotFound)
 	}
 
 	return domainSections, nil

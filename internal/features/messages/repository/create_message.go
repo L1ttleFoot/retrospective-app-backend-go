@@ -35,3 +35,15 @@ func (r *MessagesRepository) CreateMessage(ctx context.Context, message domain.M
 
 	return messageDomain, nil
 }
+
+func toDomainMessage(row db.Message) domain.Message {
+	return domain.NewMessage(
+		row.ID,
+		row.Text,
+		row.AuthorID,
+		row.CreatedAt,
+		row.UpdatedAt,
+		row.PinnedAt,
+		row.SectionID,
+	)
+}

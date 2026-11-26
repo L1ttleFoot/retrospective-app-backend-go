@@ -16,7 +16,6 @@ type MessagesHandler struct {
 
 type MessagesService interface {
 	CreateMessage(ctx context.Context, message domain.Message) (domain.Message, error)
-	GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error)
 	PatchMessage(ctx context.Context, messageId string, messagePatch domain.MessagePatch) (domain.Message, error)
 	DeleteMessage(ctx context.Context, messageId string) error
 	PinMessage(ctx context.Context, messageId string) error
@@ -36,12 +35,7 @@ func NewMessagesTransport(
 
 func (h *MessagesHandler) Router() []core_server.Route {
 	return []core_server.Route{
-		{
-			Method:     http.MethodGet,
-			Path:       "/sections/{sectionId}/messages",
-			Handler:    h.GetMessagesBySectionId,
-			Middleware: []core_middleware.Middleware{core_middleware.Auth(h.tokenManager, true)},
-		},
+
 		{
 			Method:     http.MethodPost,
 			Path:       "/messages",

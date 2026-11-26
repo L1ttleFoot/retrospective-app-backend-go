@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	AccessSecret  string `envconfig:"ACCESS_TOKEN_SECRET" `
-	RefreshSecret string `envconfig:"REFRESH_TOKEN_SECRET" `
+	AccessSecret  string `envconfig:"ACCESS_TOKEN_SECRET" required:"true"`
+	RefreshSecret string `envconfig:"REFRESH_TOKEN_SECRET" required:"true"`
 }
 
 func NewConfig() (Config, error) {

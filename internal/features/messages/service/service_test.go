@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	core_errors "golang-clean-server/internal/core/errors"
 	"golang-clean-server/internal/core/domain"
+	core_errors "golang-clean-server/internal/core/errors"
 
 	"github.com/stretchr/testify/require"
 )
@@ -32,14 +32,13 @@ func (m *mockMessagesRepository) CreateMessage(ctx context.Context, message doma
 	return message, nil
 }
 
-func (m *mockMessagesRepository) GetMessagesBySectionId(ctx context.Context, sectionId string, userId *string) ([]domain.Message, error) {
-	var result []domain.Message
-	for _, msg := range m.messages {
-		if msg.SectionID == sectionId {
-			result = append(result, msg)
-		}
+func (m *mockMessagesRepository) CreateMessageWithOutbox(ctx context.Context, message domain.Message) (domain.Message, error) {
+	if m.messages == nil {
+		m.messages = make(map[string]domain.Message)
 	}
-	return result, nil
+	m.messages[message.ID] = message
+
+	return message, nil
 }
 
 func (m *mockMessagesRepository) GetMessageById(ctx context.Context, messageId string) (domain.Message, error) {
@@ -132,22 +131,6 @@ func TestMessagesService_CreateMessage_ValidationError(t *testing.T) {
 	_, err := service.CreateMessage(context.Background(), invalidMsg)
 
 	require.Error(t, err)
-}
-
-func TestMessagesService_GetMessagesBySectionId(t *testing.T) {
-	mockRepo := newMockMessagesRepository()
-	mockRepo.messages["1"] = domain.NewMessage("1", "msg1", "a1", timeNow(), timeNow(), nil, "s1")
-	mockRepo.messages["2"] = domain.NewMessage("2", "msg2", "a1", timeNow(), timeNow(), nil, "s1")
-	mockRepo.messages["3"] = domain.NewMessage("3", "msg3", "a1", timeNow(), timeNow(), nil, "s2")
-
-	service := NewMessagesService(mockRepo, &mockMessageEventPublisher{}, &mockEventBroadcaster{})
-
-	result, err := service.GetMessagesBySectionId(context.Background(), "s1", nil)
-
-	require.NoError(t, err)
-	require.Equal(t, 2, len(result))
-	require.Contains(t, []string{"msg1", "msg2"}, result[0].Text)
-	require.Contains(t, []string{"msg1", "msg2"}, result[1].Text)
 }
 
 func TestMessagesService_PatchMessage(t *testing.T) {

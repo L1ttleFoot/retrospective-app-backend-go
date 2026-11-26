@@ -64,6 +64,21 @@ func (s *mockBoardsService) GetBoardsByOwnerId(ctx context.Context, ownerId stri
 	return res, err
 }
 
+func (s *mockBoardsService) GetSections(ctx context.Context, boardId string) (string, []domain.Section, error) {
+
+	args := s.Called(ctx, boardId)
+
+	var res []domain.Section
+
+	if args.Get(1) != nil {
+		res = args.Get(1).([]domain.Section)
+	}
+
+	err := args.Error(2)
+
+	return args.String(0), res, err
+}
+
 type mockTokenManager struct {
 	mock.Mock
 }
@@ -152,4 +167,42 @@ func TestBoardsHandler_CreateBoard(t *testing.T) {
 
 	mockService.AssertExpectations(t)
 	mockTokenManager.AssertExpectations(t)
+}
+
+func TestBoardsHandler_GetSections(t *testing.T) {
+	mockService := newMockBoardsService()
+	mockTokenManager := newMockTokenManager()
+
+	boardID := "11111111-1111-1111-1111-111111111111"
+	expectedSections := []domain.Section{
+		{ID: "sec-1", Title: "Секция 1", Color: "red", BoardID: boardID},
+	}
+
+	handler := NewBoardsHandler(mockService, mockTokenManager)
+
+	mockService.On("GetSections", mock.Anything, boardID).Return("board-title", expectedSections, nil)
+
+	req, err := http.NewRequest(http.MethodGet, "/boards/"+boardID+"/sections", nil)
+	require.NoError(t, err)
+	req.SetPathValue("id", boardID)
+
+	testLogger := &core_logger.Logger{
+		Logger: zap.NewNop(),
+	}
+	req = req.WithContext(core_logger.ToContext(req.Context(), testLogger))
+
+	rr := httptest.NewRecorder()
+
+	handler.GetSections(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code)
+
+	var actual GetSectionsResponse
+	err = json.Unmarshal(rr.Body.Bytes(), &actual)
+	require.NoError(t, err)
+	require.Equal(t, "board-title", actual.BoardTitle)
+	require.Len(t, actual.Sections, 1)
+	require.Equal(t, "sec-1", actual.Sections[0].ID)
+
+	mockService.AssertExpectations(t)
 }

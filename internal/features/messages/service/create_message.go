@@ -16,7 +16,7 @@ func (s *MessagesService) CreateMessage(ctx context.Context, message domain.Mess
 		return domain.Message{}, fmt.Errorf("validate message: %w", err)
 	}
 
-	message, err := s.messagesRepository.CreateMessage(ctx, message)
+	message, err := s.messagesRepository.CreateMessageWithOutbox(ctx, message)
 	if err != nil {
 		return domain.Message{}, fmt.Errorf("create message: %w", err)
 	}

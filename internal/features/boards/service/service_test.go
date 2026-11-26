@@ -11,12 +11,14 @@ import (
 )
 
 type mockBoardsRepository struct {
-	boards map[string]domain.Board
+	boards   map[string]domain.Board
+	sections map[string]domain.Section
 }
 
 func newMockBoardsRepository() *mockBoardsRepository {
 	return &mockBoardsRepository{
-		boards: make(map[string]domain.Board),
+		boards:   make(map[string]domain.Board),
+		sections: make(map[string]domain.Section),
 	}
 }
 
@@ -38,6 +40,15 @@ func (b *mockBoardsRepository) GetBoardsByOwnerId(ctx context.Context, ownerId s
 	return result, nil
 }
 
+func (b *mockBoardsRepository) GetBoardById(ctx context.Context, boardId string) (domain.Board, error) {
+	board, ok := b.boards[boardId]
+	if !ok {
+		return domain.Board{}, core_errors.ErrNotFound
+	}
+
+	return board, nil
+}
+
 func (b *mockBoardsRepository) DeleteBoard(ctx context.Context, boardId string) error {
 	delete(b.boards, boardId)
 	return nil
@@ -49,6 +60,18 @@ func (b *mockBoardsRepository) GetBoardOwnerId(ctx context.Context, boardId stri
 		return "", core_errors.ErrNotFound
 	}
 	return board.OwnerID, nil
+}
+
+func (b *mockBoardsRepository) GetSections(ctx context.Context, boardId string) ([]domain.Section, error) {
+	var result []domain.Section
+
+	for _, s := range b.sections {
+		if s.BoardID == boardId {
+			result = append(result, s)
+		}
+	}
+
+	return result, nil
 }
 
 func timeNow() time.Time {
@@ -124,4 +147,34 @@ func TestBoardsService_GetBoardsByOwnderId(t *testing.T) {
 	require.Equal(t, 2, len(result))
 	require.Contains(t, []string{"test-title-1", "test-title-2"}, result[0].Title)
 	require.Contains(t, []string{"test-title-1", "test-title-2"}, result[1].Title)
+}
+
+func TestBoardsService_GetSections(t *testing.T) {
+	mockRepo := newMockBoardsRepository()
+
+	mockRepo.boards["1"] = domain.NewBoard("1", "board-title", "owner-1", timeNow())
+	mockRepo.sections["1"] = domain.NewSection("1", "test-title-1", "red", "1", timeNow())
+	mockRepo.sections["2"] = domain.NewSection("2", "test-title-2", "green", "1", timeNow())
+	mockRepo.sections["3"] = domain.NewSection("1", "test-title-1", "blue", "2", timeNow())
+
+	service := NewBoardsService(mockRepo)
+
+	boardTitle, result, err := service.GetSections(context.Background(), "1")
+
+	require.NoError(t, err)
+	require.Equal(t, "board-title", boardTitle)
+	require.Equal(t, 2, len(result))
+	require.Contains(t, []string{"test-title-1", "test-title-2"}, result[0].Title)
+	require.Contains(t, []string{"test-title-1", "test-title-2"}, result[1].Title)
+}
+
+func TestBoardsService_GetSections_BoardNotFound(t *testing.T) {
+	mockRepo := newMockBoardsRepository()
+
+	service := NewBoardsService(mockRepo)
+
+	_, result, err := service.GetSections(context.Background(), "missing")
+
+	require.ErrorIs(t, err, core_errors.ErrNotFound)
+	require.Empty(t, result)
 }
