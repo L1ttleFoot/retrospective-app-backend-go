@@ -68,7 +68,7 @@ func (b *Broker) Routes() []core_server.Route {
 	return []core_server.Route{
 		{
 			Method:  http.MethodGet,
-			Path:    "/boards/{boardId}/events",
+			Path:    "/events/boards/{boardId}",
 			Handler: b.StreamEvent,
 		},
 	}
